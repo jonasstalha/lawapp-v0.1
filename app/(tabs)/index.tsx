@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, Image, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from '@/hooks/useTranslation';
-import { SearchBar } from '@/components/SearchBar';
+
 import { CategoryCard } from '@/components/CategoryCard';
 import { Scale, Gavel, Users, Building2, FileText } from 'lucide-react-native';
 
@@ -42,11 +42,6 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <SearchBar
-        placeholder={t('home.searchPlaceholder')}
-        onSearch={(text) => console.log(text)}
-      />
-
       <Text style={styles.sectionTitle}>{t('home.categories')}</Text>
       <ScrollView
         horizontal

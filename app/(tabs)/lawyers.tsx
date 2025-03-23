@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useTranslation } from '@/hooks/useTranslation';
-import { SearchBar } from '@/components/SearchBar';
+
 import { Star, MapPin, Calendar } from 'lucide-react-native';
 
 const LAWYERS = [
@@ -61,10 +61,7 @@ export default function LawyersScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <SearchBar
-        placeholder={t('lawyers.search')}
-        onSearch={(text) => console.log(text)}
-      />
+    
 
       <Text style={styles.sectionTitle}>{t('lawyers.specializations')}</Text>
       <ScrollView

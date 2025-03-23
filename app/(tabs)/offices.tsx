@@ -8,7 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { useTranslation } from '@/hooks/useTranslation';
-import { SearchBar } from '@/components/SearchBar';
+
 import {
   Building2,
   Scale,
@@ -60,11 +60,6 @@ export default function OfficesScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <SearchBar
-        placeholder={t('offices.searchOffice')}
-        onSearch={(text) => console.log(text)}
-      />
-
       <View style={styles.categoriesContainer}>
         {CATEGORIES.map((category) => {
           const Icon = category.icon;
