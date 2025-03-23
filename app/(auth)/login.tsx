@@ -1,99 +1,179 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  StyleSheet, 
+  KeyboardAvoidingView, 
+  Platform,
+  TouchableOpacity,
+  Alert,
+  Image 
+} from 'react-native';
 import { useRouter } from 'expo-router';
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/firebase/firebaseConfig";
+import { useTheme } from '@/context/ThemeContext';
+import { Button } from '@/components/ui/Button';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/firebase/firebaseConfig';
 
 export default function Login() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.replace("/(tabs)");
+      router.replace('/(tabs)');
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <View style={styles.content}>
+        <Image
+          source={require('@/assets/images/logo.png')}
+          style={styles.logo}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.linkButton} 
-          onPress={() => router.push("/(auth)/signup")}
-        >
-          <Text style={styles.linkText}>Don't have an account? Sign up</Text>
-        </TouchableOpacity>
+        
+        <Text style={[styles.title, { color: colors.text }]}>
+          Welcome Back
+        </Text>
+        
+        <Text style={[styles.subtitle, { color: colors.subText }]}>
+          Sign in to continue
+        </Text>
+
+        <View style={styles.form}>
+          <TextInput
+            style={[styles.input, { 
+              backgroundColor: colors.input,
+              color: colors.text,
+            }]}
+            placeholder="Email"
+            placeholderTextColor={colors.subText}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+
+          <TextInput
+            style={[styles.input, { 
+              backgroundColor: colors.input,
+              color: colors.text,
+            }]}
+            placeholder="Password"
+            placeholderTextColor={colors.subText}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+
+          <TouchableOpacity 
+            onPress={() => router.push('/forgot-password')}
+            style={styles.forgotPassword}
+          >
+            <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>
+              Forgot Password?
+            </Text>
+          </TouchableOpacity>
+
+          <Button
+            title="Sign In"
+            onPress={handleLogin}
+            loading={loading}
+          />
+
+          <View style={styles.divider}>
+            <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+            <Text style={[styles.dividerText, { color: colors.subText }]}>OR</Text>
+            <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+          </View>
+
+          <Button
+            title="Create an Account"
+            onPress={() => router.push('/(auth)/signup')}
+            variant="outline"
+          />
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    padding: 20,
   },
-  formContainer: {
-    width: '100%',
-    maxWidth: 400,
+  content: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
+  },
+  logo: {
+    width: 100,
+    height: 100,
     alignSelf: 'center',
+    marginBottom: 32,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 30,
+    fontSize: 28,
+    fontFamily: 'Cairo-Bold',
     textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: 'Cairo-Regular',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  form: {
+    gap: 16,
   },
   input: {
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    height: 48,
+    borderRadius: 12,
+    paddingHorizontal: 16,
     fontSize: 16,
+    fontFamily: 'Cairo-Regular',
   },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 8,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    fontFamily: 'Cairo-Regular',
+  },
+  divider: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginVertical: 24,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+  dividerLine: {
+    flex: 1,
+    height: 1,
   },
-  linkButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#007AFF',
-    fontSize: 16,
+  dividerText: {
+    paddingHorizontal: 16,
+    fontSize: 14,
+    fontFamily: 'Cairo-Regular',
   },
 }); 

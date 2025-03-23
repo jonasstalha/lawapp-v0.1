@@ -1,47 +1,26 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useTranslation } from '@/hooks/useTranslation';
-import { Sun, Moon, Languages } from 'lucide-react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Moon, Sun } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
+import { LanguageSelector } from './LanguageSelector';
 
 export function HeaderRight() {
-  const { setLanguage, getCurrentLanguage } = useTranslation();
-  const [isDark, setIsDark] = React.useState(false);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    // Theme implementation will be added later
-  };
-
-  const cycleLanguage = () => {
-    const languages = ['ar', 'fr', 'en'];
-    const currentLang = getCurrentLanguage();
-    const currentIndex = languages.indexOf(currentLang);
-    const nextIndex = (currentIndex + 1) % languages.length;
-    setLanguage(languages[nextIndex]);
-  };
+  const { mode, colors, toggleTheme } = useTheme();
 
   return (
     <View style={styles.container}>
-      <Pressable
-        onPress={cycleLanguage}
-        style={({ pressed }) => [
-          styles.button,
-          pressed && styles.buttonPressed,
-        ]}>
-        <Languages size={20} color="#1e293b" />
-      </Pressable>
-      <Pressable
+      <LanguageSelector />
+      
+      <TouchableOpacity 
+        style={styles.button}
         onPress={toggleTheme}
-        style={({ pressed }) => [
-          styles.button,
-          pressed && styles.buttonPressed,
-        ]}>
-        {isDark ? (
-          <Moon size={20} color="#1e293b" />
+      >
+        {mode === 'dark' ? (
+          <Moon size={24} color={colors.text} />
         ) : (
-          <Sun size={20} color="#1e293b" />
+          <Sun size={24} color={colors.text} />
         )}
-      </Pressable>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -51,18 +30,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: 16,
-    gap: 8,
   },
   button: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#f1f5f9',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonPressed: {
-    backgroundColor: '#e2e8f0',
-    transform: [{ scale: 0.95 }],
+    padding: 8,
   },
 });

@@ -8,6 +8,8 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useTheme } from '@/context/ThemeContext';
+import { getCardStyle } from '@/utils/styleUtils';
 
 import { Star, MapPin, Calendar } from 'lucide-react-native';
 
@@ -57,13 +59,19 @@ const SPECIALIZATIONS = [
 
 export default function LawyersScreen() {
   const { t } = useTranslation();
+  const { colors, mode } = useTheme();
+  const isDark = mode === 'dark';
   const [selectedSpecialization, setSelectedSpecialization] = useState<string | null>(null);
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-    
-
-      <Text style={styles.sectionTitle}>{t('lawyers.specializations')}</Text>
+    <ScrollView 
+      style={[styles.container, { backgroundColor: colors.background }]} 
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        {t('lawyers.specializations')}
+      </Text>
+      
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -73,7 +81,8 @@ export default function LawyersScreen() {
             key={specialization}
             style={[
               styles.specializationChip,
-              selectedSpecialization === specialization && styles.specializationChipSelected,
+              { backgroundColor: colors.card },
+              selectedSpecialization === specialization && { backgroundColor: colors.primary }
             ]}
             onPress={() => setSelectedSpecialization(
               selectedSpecialization === specialization ? null : specialization
@@ -81,7 +90,8 @@ export default function LawyersScreen() {
             <Text
               style={[
                 styles.specializationText,
-                selectedSpecialization === specialization && styles.specializationTextSelected,
+                { color: colors.text },
+                selectedSpecialization === specialization && { color: '#ffffff' }
               ]}>
               {specialization}
             </Text>
@@ -91,11 +101,21 @@ export default function LawyersScreen() {
 
       <View style={styles.lawyersContainer}>
         {LAWYERS.map((lawyer) => (
-          <Pressable key={lawyer.id} style={styles.lawyerCard}>
+          <Pressable 
+            key={lawyer.id} 
+            style={[
+              styles.lawyerCard,
+              getCardStyle(isDark)
+            ]}
+          >
             <Image source={{ uri: lawyer.image }} style={styles.lawyerImage} />
             <View style={styles.lawyerInfo}>
-              <Text style={styles.lawyerName}>{lawyer.name}</Text>
-              <Text style={styles.specialization}>{lawyer.specialization}</Text>
+              <Text style={[styles.lawyerName, { color: colors.text }]}>
+                {lawyer.name}
+              </Text>
+              <Text style={[styles.specialization, { color: colors.subText }]}>
+                {lawyer.specialization}
+              </Text>
               
               <View style={styles.ratingContainer}>
                 <Star size={16} color="#f59e0b" fill="#f59e0b" />
@@ -132,7 +152,6 @@ export default function LawyersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
   },
   sectionTitle: {
     fontSize: 20,
@@ -176,18 +195,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   lawyerCard: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     marginBottom: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   lawyerImage: {
     width: '100%',

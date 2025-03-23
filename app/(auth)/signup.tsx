@@ -1,100 +1,160 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  StyleSheet, 
+  KeyboardAvoidingView, 
+  Platform,
+  Alert,
+  Image 
+} from 'react-native';
 import { useRouter } from 'expo-router';
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/firebase/firebaseConfig";
+import { useTheme } from '@/context/ThemeContext';
+import { Button } from '@/components/ui/Button';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/firebase/firebaseConfig';
 
 export default function Signup() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
+    if (!email || !password || !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      Alert.alert("Success", "Account created successfully!");
-      router.replace("/(auth)/login");
+      Alert.alert('Success', 'Account created successfully!');
+      router.replace('/(auth)/login');
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Create Account</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <View style={styles.content}>
+        <Image
+          source={require('@/assets/images/logo.png')}
+          style={styles.logo}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <TouchableOpacity style={styles.button} onPress={handleSignup}>
-          <Text style={styles.buttonText}>Sign Up</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.linkButton} 
-          onPress={() => router.push("/(auth)/login")}
-        >
-          <Text style={styles.linkText}>Already have an account? Login</Text>
-        </TouchableOpacity>
+        
+        <Text style={[styles.title, { color: colors.text }]}>
+          Create Account
+        </Text>
+        
+        <Text style={[styles.subtitle, { color: colors.subText }]}>
+          Sign up to get started
+        </Text>
+
+        <View style={styles.form}>
+          <TextInput
+            style={[styles.input, { 
+              backgroundColor: colors.input,
+              color: colors.text,
+            }]}
+            placeholder="Email"
+            placeholderTextColor={colors.subText}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+
+          <TextInput
+            style={[styles.input, { 
+              backgroundColor: colors.input,
+              color: colors.text,
+            }]}
+            placeholder="Password"
+            placeholderTextColor={colors.subText}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+
+          <TextInput
+            style={[styles.input, { 
+              backgroundColor: colors.input,
+              color: colors.text,
+            }]}
+            placeholder="Confirm Password"
+            placeholderTextColor={colors.subText}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+          />
+
+          <Button
+            title="Create Account"
+            onPress={handleSignup}
+            loading={loading}
+          />
+
+          <Button
+            title="Already have an account? Sign In"
+            onPress={() => router.push('/(auth)/login')}
+            variant="outline"
+          />
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    padding: 20,
   },
-  formContainer: {
-    width: '100%',
-    maxWidth: 400,
+  content: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
+  },
+  logo: {
+    width: 100,
+    height: 100,
     alignSelf: 'center',
+    marginBottom: 32,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 30,
+    fontSize: 28,
+    fontFamily: 'Cairo-Bold',
     textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: 'Cairo-Regular',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  form: {
+    gap: 16,
   },
   input: {
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    height: 48,
+    borderRadius: 12,
+    paddingHorizontal: 16,
     fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  linkButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#007AFF',
-    fontSize: 16,
+    fontFamily: 'Cairo-Regular',
   },
 }); 

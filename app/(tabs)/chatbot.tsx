@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Send, User, Bot } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
+import { getCardStyle } from '@/utils/styleUtils';
 
 const EXAMPLE_QUESTIONS = [
   "What are the requirements for starting a business in Morocco?",
@@ -28,6 +30,8 @@ interface Message {
 
 export default function ChatbotScreen() {
   const { t } = useTranslation();
+  const { colors, mode } = useTheme();
+  const isDark = mode === 'dark';
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -59,20 +63,29 @@ export default function ChatbotScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}>
+      style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         style={styles.messagesContainer}
         contentContainerStyle={styles.messagesContent}>
-        <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeTitle}>{t('chatbot.welcome')}</Text>
-          <Text style={styles.welcomeSubtitle}>{t('chatbot.examples')}</Text>
+        <View style={[
+          styles.welcomeContainer,
+          getCardStyle(isDark)
+        ]}>
+          <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+            {t('chatbot.welcome')}
+          </Text>
+          <Text style={[styles.welcomeSubtitle, { color: colors.subText }]}>
+            {t('chatbot.examples')}
+          </Text>
           <View style={styles.examplesContainer}>
             {EXAMPLE_QUESTIONS.map((question, index) => (
               <Pressable
                 key={index}
-                style={styles.exampleButton}
+                style={[styles.exampleButton, { backgroundColor: colors.input }]}
                 onPress={() => setMessage(question)}>
-                <Text style={styles.exampleText}>{question}</Text>
+                <Text style={[styles.exampleText, { color: colors.primary }]}>
+                  {question}
+                </Text>
               </Pressable>
             ))}
           </View>
@@ -85,40 +98,58 @@ export default function ChatbotScreen() {
               styles.messageContainer,
               msg.isUser ? styles.userMessage : styles.botMessage,
             ]}>
-            <View style={styles.messageIconContainer}>
+            <View style={[
+              styles.messageIconContainer,
+              { backgroundColor: colors.primary }
+            ]}>
               {msg.isUser ? (
                 <User size={20} color="#ffffff" />
               ) : (
                 <Bot size={20} color="#ffffff" />
               )}
             </View>
-            <View style={styles.messageContent}>
-              <Text style={styles.messageText}>{msg.text}</Text>
-              <Text style={styles.timestamp}>
-                {msg.timestamp.toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
+            <View style={[
+              styles.messageContent,
+              getCardStyle(isDark)
+            ]}>
+              <Text style={[styles.messageText, { color: colors.text }]}>
+                {msg.text}
+              </Text>
+              <Text style={[styles.timestamp, { color: colors.subText }]}>
+                {msg.timestamp.toLocaleTimeString()}
               </Text>
             </View>
           </View>
         ))}
       </ScrollView>
 
-      <View style={styles.inputContainer}>
+      <View style={[
+        styles.inputContainer,
+        {
+          backgroundColor: colors.card,
+          borderTopColor: colors.border
+        }
+      ]}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { 
+            backgroundColor: colors.input,
+            color: colors.text
+          }]}
           value={message}
           onChangeText={setMessage}
           placeholder={t('chatbot.placeholder')}
-          placeholderTextColor="#64748b"
+          placeholderTextColor={colors.subText}
           multiline
         />
         <Pressable
-          style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]}
+          style={[
+            styles.sendButton,
+            { backgroundColor: message.trim() ? colors.primary : colors.border },
+            !message.trim() && styles.sendButtonDisabled
+          ]}
           onPress={sendMessage}
           disabled={!message.trim()}>
-          <Send size={20} color={message.trim() ? '#ffffff' : '#94a3b8'} />
+          <Send size={20} color={message.trim() ? '#ffffff' : colors.subText} />
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -128,7 +159,6 @@ export default function ChatbotScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
   },
   messagesContainer: {
     flex: 1,

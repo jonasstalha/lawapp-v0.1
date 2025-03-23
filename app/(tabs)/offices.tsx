@@ -8,6 +8,8 @@ import {
   Platform,
 } from 'react-native';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useTheme } from '@/context/ThemeContext';
+import { getCardStyle } from '@/utils/styleUtils';
 
 import {
   Building2,
@@ -57,18 +59,32 @@ const CATEGORIES = [
 
 export default function OfficesScreen() {
   const { t } = useTranslation();
+  const { colors, mode } = useTheme();
+  const isDark = mode === 'dark';
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView 
+      style={[styles.container, { backgroundColor: colors.background }]}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.categoriesContainer}>
         {CATEGORIES.map((category) => {
           const Icon = category.icon;
           return (
-            <Pressable key={category.id} style={styles.categoryCard}>
-              <View style={styles.categoryIcon}>
-                <Icon size={24} color="#2563eb" />
+            <Pressable 
+              key={category.id} 
+              style={[
+                styles.categoryCard,
+                getCardStyle(isDark)
+              ]}
+            >
+              <View style={[
+                styles.categoryIcon, 
+                { backgroundColor: isDark ? colors.border : colors.input }
+              ]}>
+                <Icon size={24} color={colors.primary} />
               </View>
-              <Text style={styles.categoryTitle}>
+              <Text style={[styles.categoryTitle, { color: colors.text }]}>
                 {t(`offices.categories.${category.id}`)}
               </Text>
             </Pressable>
@@ -83,7 +99,13 @@ export default function OfficesScreen() {
 
       <View style={styles.officesContainer}>
         {OFFICES.map((office) => (
-          <Pressable key={office.id} style={styles.officeCard}>
+          <Pressable 
+            key={office.id} 
+            style={[
+              styles.officeCard,
+              getCardStyle(isDark)
+            ]}
+          >
             <View style={styles.officeHeader}>
               <View style={styles.officeTypeContainer}>
                 <Text style={styles.officeType}>{office.type}</Text>
@@ -129,7 +151,6 @@ export default function OfficesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
   },
   categoriesContainer: {
     flexDirection: 'row',
@@ -139,19 +160,10 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     flex: 1,
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     marginHorizontal: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   categoryIcon: {
     backgroundColor: '#eff6ff',
@@ -182,18 +194,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   officeCard: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   officeHeader: {
     flexDirection: 'row',

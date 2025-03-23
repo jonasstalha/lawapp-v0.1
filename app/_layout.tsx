@@ -19,6 +19,11 @@ import {
 import { SplashScreen } from "expo-router";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/firebase/firebaseConfig";
+import { ThemeProvider } from '@/context/ThemeContext';
+import { LanguageProvider } from '@/context/LanguageContext';
+import { useTheme } from '@/context/ThemeContext';
+import { ThemeWrapper } from '@/components/ThemeWrapper';
+import { AppLayout } from '@/components/layouts/AppLayout';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -28,6 +33,7 @@ export default function RootLayout() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const { mode } = useTheme();
 
   const [fontsLoaded, fontError] = useFonts({
     "Cairo-Regular": Cairo_400Regular,
@@ -71,28 +77,20 @@ export default function RootLayout() {
   }
 
   return (
-    <>
-      <Stack screenOptions={{ 
-        headerShown: false,
-        contentStyle: {
-          backgroundColor: '#ffffff',
-        }
-      }}>
-        <Stack.Screen 
-          name="(tabs)" 
-          options={{ headerShown: false }} 
-        />
-        <Stack.Screen 
-          name="(auth)/login" 
-          options={{ headerShown: false }} 
-        />
-        <Stack.Screen 
-          name="(auth)/signup" 
-          options={{ headerShown: false }} 
-        />
-      </Stack>
-      <StatusBar style="auto" />
-    </>
+    <ThemeProvider>
+      <LanguageProvider>
+        <ThemeWrapper>
+          <AppLayout>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
+            </Stack>
+            <StatusBar style="auto" />
+          </AppLayout>
+        </ThemeWrapper>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 

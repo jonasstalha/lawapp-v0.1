@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, ScrollView, Image, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useTheme } from '@/context/ThemeContext';
+import { getCardStyle } from '@/utils/styleUtils';
 
 import { CategoryCard } from '@/components/CategoryCard';
 import { Scale, Gavel, Users, Building2, FileText } from 'lucide-react-native';
@@ -39,14 +41,28 @@ const FEATURED_LAWYERS = [
 
 export default function HomeScreen() {
   const { t } = useTranslation();
+  const { colors, mode } = useTheme();
+  const isDark = mode === 'dark';
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.sectionTitle}>{t('home.categories')}</Text>
+    <ScrollView 
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+    >
+      <Text style={[styles.title, { color: colors.text }]}>
+        Welcome to Home
+      </Text>
+      <Text style={[
+        styles.sectionTitle,
+        { color: colors.text }
+      ]}>{t('home.categories')}</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoriesContainer}>
+        contentContainerStyle={[
+          styles.categoriesContainer,
+          { backgroundColor: colors.border }
+        ]}>
         <CategoryCard icon={Scale} title="Business Law" onPress={() => {}} />
         <CategoryCard icon={Gavel} title="Criminal Law" onPress={() => {}} />
         <CategoryCard icon={Users} title="Family Law" onPress={() => {}} />
@@ -54,44 +70,110 @@ export default function HomeScreen() {
         <CategoryCard icon={Building2} title="Real Estate" onPress={() => {}} />
       </ScrollView>
 
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t('home.latestNews')}</Text>
+      <View style={[
+        styles.section,
+        { backgroundColor: colors.border }
+      ]}>
+        <View style={[
+          styles.sectionHeader,
+          { backgroundColor: colors.border }
+        ]}>
+          <Text style={[
+            styles.sectionTitle,
+            { color: colors.text }
+          ]}>{t('home.latestNews')}</Text>
           <Pressable>
-            <Text style={styles.viewAll}>{t('home.viewAll')}</Text>
+            <Text style={[
+              styles.viewAll,
+              { color: colors.primary }
+            ]}>{t('home.viewAll')}</Text>
           </Pressable>
         </View>
         {NEWS_ITEMS.map((item) => (
-          <Pressable key={item.id} style={styles.newsCard}>
-            <Image source={{ uri: item.image }} style={styles.newsImage} />
-            <View style={styles.newsContent}>
-              <Text style={styles.newsCategory}>{item.category}</Text>
-              <Text style={styles.newsTitle}>{item.title}</Text>
+          <Pressable 
+            key={item.id} 
+            style={[
+              styles.newsCard,
+              getCardStyle(isDark)
+            ]}
+          >
+            <Image source={{ uri: item.image }} style={[
+              styles.newsImage,
+              { borderColor: colors.border }
+            ]} />
+            <View style={[
+              styles.newsContent,
+              { borderColor: colors.border }
+            ]}>
+              <Text style={[
+                styles.newsCategory,
+                { color: colors.primary }
+              ]}>{item.category}</Text>
+              <Text style={[
+                styles.newsTitle,
+                { color: colors.text }
+              ]}>{item.title}</Text>
             </View>
           </Pressable>
         ))}
       </View>
 
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t('home.featuredLawyers')}</Text>
+      <View style={[
+        styles.section,
+        { backgroundColor: colors.border }
+      ]}>
+        <View style={[
+          styles.sectionHeader,
+          { backgroundColor: colors.border }
+        ]}>
+          <Text style={[
+            styles.sectionTitle,
+            { color: colors.text }
+          ]}>{t('home.featuredLawyers')}</Text>
           <Pressable>
-            <Text style={styles.viewAll}>{t('home.viewAll')}</Text>
+            <Text style={[
+              styles.viewAll,
+              { color: colors.primary }
+            ]}>{t('home.viewAll')}</Text>
           </Pressable>
         </View>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.lawyersContainer}>
+          contentContainerStyle={[
+            styles.lawyersContainer,
+            { backgroundColor: colors.border }
+          ]}>
           {FEATURED_LAWYERS.map((lawyer) => (
-            <Pressable key={lawyer.id} style={styles.lawyerCard}>
-              <Image source={{ uri: lawyer.image }} style={styles.lawyerImage} />
-              <Text style={styles.lawyerName}>{lawyer.name}</Text>
-              <Text style={styles.lawyerSpecialization}>
+            <Pressable 
+              key={lawyer.id} 
+              style={[
+                styles.lawyerCard,
+                getCardStyle(isDark)
+              ]}
+            >
+              <Image source={{ uri: lawyer.image }} style={[
+                styles.lawyerImage,
+                { borderColor: colors.border }
+              ]} />
+              <Text style={[
+                styles.lawyerName,
+                { color: colors.text }
+              ]}>{lawyer.name}</Text>
+              <Text style={[
+                styles.lawyerSpecialization,
+                { color: colors.subText }
+              ]}>
                 {lawyer.specialization}
               </Text>
-              <View style={styles.ratingContainer}>
-                <Text style={styles.rating}>⭐️ {lawyer.rating}</Text>
+              <View style={[
+                styles.ratingContainer,
+                { backgroundColor: colors.border }
+              ]}>
+                <Text style={[
+                  styles.rating,
+                  { color: colors.text }
+                ]}>⭐️ {lawyer.rating}</Text>
               </View>
             </Pressable>
           ))}
@@ -104,7 +186,14 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+  },
+  content: {
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: 'Cairo-Bold',
+    marginBottom: 16,
   },
   section: {
     marginTop: 24,
@@ -150,6 +239,8 @@ const styles = StyleSheet.create({
   newsImage: {
     width: '100%',
     height: 200,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   newsContent: {
     padding: 16,
@@ -188,6 +279,8 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   lawyerName: {
     fontSize: 16,
