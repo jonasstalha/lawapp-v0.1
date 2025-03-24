@@ -11,10 +11,11 @@ import {
 } from 'react-native';
 import { Send, User, Bot } from 'lucide-react-native';
 import axios from 'axios';
-import { OPENAI_API_KEY } from '@env';
+const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
+console.log("OpenAI API Key:", OPENAI_API_KEY);
 import Constants from 'expo-constants';
 
-const OPENAI_API_KEY_EXPO = Constants.expoConfig?.extra?.openaiApiKey;
+const OPENAI_API_KEY_EXPO = Constants.expoConfig?.extra?.openaiApiKey || OPENAI_API_KEY;
 
 if (!OPENAI_API_KEY_EXPO) {
   console.error('OpenAI API key is not set in environment variables');
@@ -27,25 +28,14 @@ const EXAMPLE_QUESTIONS = [
   "How can I register a trademark?",
 ];
 
-interface Message {
-  id: string;
-  text: string;
-  isUser: boolean;
-  timestamp: Date;
-}
-
-async function getAIResponse(userMessage: string) {
+async function getAIResponse(userMessage) {
   try {
-    if (!OPENAI_API_KEY) {
+    if (!OPENAI_API_KEY_EXPO) {
       throw new Error('OpenAI API key is not configured');
     }
 
-    const API_URL = Platform.OS === 'web' 
-      ? '/api/chat' // Use your backend proxy URL for web
-      : 'https://api.openai.com/v1/chat/completions';
-
     const response = await axios.post(
-      API_URL,
+      'https://api.openai.com/v1/chat/completions',
       {
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: userMessage }],
@@ -53,72 +43,54 @@ async function getAIResponse(userMessage: string) {
       {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${OPENAI_API_KEY}`,
+          "Authorization": `Bearer ${OPENAI_API_KEY_EXPO}`,
         },
       }
     );
 
-    if (response.data && response.data.choices && response.data.choices[0]) {
-      return response.data.choices[0].message.content;
-    }
-
-    throw new Error('Invalid response format');
+    return response.data?.choices?.[0]?.message?.content || "Sorry, I didn't understand that.";
   } catch (error) {
     console.error('Error getting AI response:', error);
-    return Platform.OS === 'web'
-      ? "Error: Please check your network connection or try again later."
-      : "Sorry, I encountered an error processing your request.";
+    return "Error: Unable to process your request at the moment.";
   }
 }
 
-const ErrorFallback = () => (
-  <View style={styles.container}>
-    <Text>Something went wrong. Please refresh the page.</Text>
-  </View>
-);
-
 export default function ChatbotScreen() {
-  if (Platform.OS === 'web' && !OPENAI_API_KEY_EXPO) {
-    return <ErrorFallback />;
-  }
-
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState([]);
 
   const sendMessage = async () => {
     if (!message.trim()) return;
 
-    const userMessage: Message = {
+    const userMessage = {
       id: Date.now().toString(),
       text: message,
       isUser: true,
       timestamp: new Date(),
     };
-
     setMessages((prev) => [...prev, userMessage]);
     setMessage('');
 
-    const loadingMessage: Message = {
+    const loadingMessage = {
       id: (Date.now() + 1).toString(),
-      text: "I'm processing your question. Please wait a moment...",
+      text: "I'm processing your question...",
       isUser: false,
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, loadingMessage]);
 
     const aiResponse = await getAIResponse(userMessage.text);
-    
-    setMessages((prev) => prev.map(msg => 
-      msg.id === loadingMessage.id 
-        ? { ...msg, text: aiResponse, timestamp: new Date() }
-        : msg
-    ));
+
+    setMessages((prev) => [...prev.filter(msg => msg.id !== loadingMessage.id), {
+      id: (Date.now() + 2).toString(),
+      text: aiResponse,
+      isUser: false,
+      timestamp: new Date(),
+    }]);
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <ScrollView style={styles.messagesContainer}>
         <View style={styles.examplesContainer}>
           {EXAMPLE_QUESTIONS.map((question, index) => (
