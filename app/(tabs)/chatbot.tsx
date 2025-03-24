@@ -9,10 +9,16 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useTranslation } from '@/hooks/useTranslation';
 import { Send, User, Bot } from 'lucide-react-native';
-import { useTheme } from '@/context/ThemeContext';
-import { getCardStyle } from '@/utils/styleUtils';
+import axios from 'axios';
+import { OPENAI_API_KEY } from '@env';
+import Constants from 'expo-constants';
+
+const OPENAI_API_KEY_EXPO = Constants.expoConfig?.extra?.openaiApiKey;
+
+if (!OPENAI_API_KEY_EXPO) {
+  console.error('OpenAI API key is not set in environment variables');
+}
 
 const EXAMPLE_QUESTIONS = [
   "What are the requirements for starting a business in Morocco?",
@@ -28,128 +34,124 @@ interface Message {
   timestamp: Date;
 }
 
+async function getAIResponse(userMessage: string) {
+  try {
+    if (!OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
+    const API_URL = Platform.OS === 'web' 
+      ? '/api/chat' // Use your backend proxy URL for web
+      : 'https://api.openai.com/v1/chat/completions';
+
+    const response = await axios.post(
+      API_URL,
+      {
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: userMessage }],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        },
+      }
+    );
+
+    if (response.data && response.data.choices && response.data.choices[0]) {
+      return response.data.choices[0].message.content;
+    }
+
+    throw new Error('Invalid response format');
+  } catch (error) {
+    console.error('Error getting AI response:', error);
+    return Platform.OS === 'web'
+      ? "Error: Please check your network connection or try again later."
+      : "Sorry, I encountered an error processing your request.";
+  }
+}
+
+const ErrorFallback = () => (
+  <View style={styles.container}>
+    <Text>Something went wrong. Please refresh the page.</Text>
+  </View>
+);
+
 export default function ChatbotScreen() {
-  const { t } = useTranslation();
-  const { colors, mode } = useTheme();
-  const isDark = mode === 'dark';
+  if (Platform.OS === 'web' && !OPENAI_API_KEY_EXPO) {
+    return <ErrorFallback />;
+  }
+
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!message.trim()) return;
 
-    const newMessage: Message = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       text: message,
       isUser: true,
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setMessage('');
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "I'm processing your question. Please wait a moment...",
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
+    const loadingMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: "I'm processing your question. Please wait a moment...",
+      isUser: false,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, loadingMessage]);
+
+    const aiResponse = await getAIResponse(userMessage.text);
+    
+    setMessages((prev) => prev.map(msg => 
+      msg.id === loadingMessage.id 
+        ? { ...msg, text: aiResponse, timestamp: new Date() }
+        : msg
+    ));
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView
-        style={styles.messagesContainer}
-        contentContainerStyle={styles.messagesContent}>
-        <View style={[
-          styles.welcomeContainer,
-          getCardStyle(isDark)
-        ]}>
-          <Text style={[styles.welcomeTitle, { color: colors.text }]}>
-            {t('chatbot.welcome')}
-          </Text>
-          <Text style={[styles.welcomeSubtitle, { color: colors.subText }]}>
-            {t('chatbot.examples')}
-          </Text>
-          <View style={styles.examplesContainer}>
-            {EXAMPLE_QUESTIONS.map((question, index) => (
-              <Pressable
-                key={index}
-                style={[styles.exampleButton, { backgroundColor: colors.input }]}
-                onPress={() => setMessage(question)}>
-                <Text style={[styles.exampleText, { color: colors.primary }]}>
-                  {question}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
+      style={styles.container}>
+      <ScrollView style={styles.messagesContainer}>
+        <View style={styles.examplesContainer}>
+          {EXAMPLE_QUESTIONS.map((question, index) => (
+            <Pressable key={index} style={styles.exampleButton} onPress={() => setMessage(question)}>
+              <Text style={styles.exampleText}>{question}</Text>
+            </Pressable>
+          ))}
         </View>
 
         {messages.map((msg) => (
-          <View
-            key={msg.id}
-            style={[
-              styles.messageContainer,
-              msg.isUser ? styles.userMessage : styles.botMessage,
-            ]}>
-            <View style={[
-              styles.messageIconContainer,
-              { backgroundColor: colors.primary }
-            ]}>
-              {msg.isUser ? (
-                <User size={20} color="#ffffff" />
-              ) : (
-                <Bot size={20} color="#ffffff" />
-              )}
+          <View key={msg.id} style={[styles.messageContainer, msg.isUser ? styles.userMessage : styles.botMessage]}>
+            <View style={styles.messageIconContainer}>
+              {msg.isUser ? <User size={20} color="#fff" /> : <Bot size={20} color="#fff" />}
             </View>
-            <View style={[
-              styles.messageContent,
-              getCardStyle(isDark)
-            ]}>
-              <Text style={[styles.messageText, { color: colors.text }]}>
-                {msg.text}
-              </Text>
-              <Text style={[styles.timestamp, { color: colors.subText }]}>
-                {msg.timestamp.toLocaleTimeString()}
-              </Text>
+            <View style={styles.messageContent}>
+              <Text style={styles.messageText}>{msg.text}</Text>
+              <Text style={styles.timestamp}>{msg.timestamp.toLocaleTimeString()}</Text>
             </View>
           </View>
         ))}
       </ScrollView>
 
-      <View style={[
-        styles.inputContainer,
-        {
-          backgroundColor: colors.card,
-          borderTopColor: colors.border
-        }
-      ]}>
+      <View style={styles.inputContainer}>
         <TextInput
-          style={[styles.input, { 
-            backgroundColor: colors.input,
-            color: colors.text
-          }]}
+          style={styles.input}
           value={message}
           onChangeText={setMessage}
-          placeholder={t('chatbot.placeholder')}
-          placeholderTextColor={colors.subText}
+          placeholder="Type your message..."
+          placeholderTextColor="#aaa"
           multiline
         />
-        <Pressable
-          style={[
-            styles.sendButton,
-            { backgroundColor: message.trim() ? colors.primary : colors.border },
-            !message.trim() && styles.sendButtonDisabled
-          ]}
-          onPress={sendMessage}
-          disabled={!message.trim()}>
-          <Send size={20} color={message.trim() ? '#ffffff' : colors.subText} />
+        <Pressable style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]} onPress={sendMessage} disabled={!message.trim()}>
+          <Send size={20} color={!message.trim() ? '#aaa' : '#fff'} />
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -157,128 +159,20 @@ export default function ChatbotScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  messagesContainer: {
-    flex: 1,
-  },
-  messagesContent: {
-    padding: 16,
-  },
-  welcomeContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  welcomeTitle: {
-    fontSize: 24,
-    fontFamily: 'Cairo-Bold',
-    color: '#1e293b',
-    marginBottom: 8,
-  },
-  welcomeSubtitle: {
-    fontSize: 16,
-    fontFamily: 'Cairo-Regular',
-    color: '#64748b',
-    marginBottom: 16,
-  },
-  examplesContainer: {
-    gap: 8,
-  },
-  exampleButton: {
-    backgroundColor: '#eff6ff',
-    borderRadius: 8,
-    padding: 12,
-  },
-  exampleText: {
-    fontSize: 14,
-    fontFamily: 'Roboto-Regular',
-    color: '#2563eb',
-  },
-  messageContainer: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    maxWidth: '80%',
-  },
-  userMessage: {
-    alignSelf: 'flex-end',
-    flexDirection: 'row-reverse',
-  },
-  botMessage: {
-    alignSelf: 'flex-start',
-  },
-  messageIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#2563eb',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 8,
-  },
-  messageContent: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  messageText: {
-    fontSize: 16,
-    fontFamily: 'Roboto-Regular',
-    color: '#1e293b',
-  },
-  timestamp: {
-    fontSize: 12,
-    fontFamily: 'Roboto-Regular',
-    color: '#64748b',
-    marginTop: 4,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    backgroundColor: '#ffffff',
-    borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginRight: 8,
-    fontSize: 16,
-    fontFamily: 'Roboto-Regular',
-    color: '#1e293b',
-    maxHeight: 100,
-  },
-  sendButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#2563eb',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'flex-end',
-  },
-  sendButtonDisabled: {
-    backgroundColor: '#e2e8f0',
-  },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  messagesContainer: { flex: 1, padding: 16 },
+  examplesContainer: { gap: 8, padding: 16 },
+  exampleButton: { backgroundColor: '#ddd', borderRadius: 8, padding: 12 },
+  exampleText: { fontSize: 14, color: '#333' },
+  messageContainer: { flexDirection: 'row', marginBottom: 16, maxWidth: '80%' },
+  userMessage: { alignSelf: 'flex-end', flexDirection: 'row-reverse' },
+  botMessage: { alignSelf: 'flex-start' },
+  messageIconContainer: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#007bff', justifyContent: 'center', alignItems: 'center', marginHorizontal: 8 },
+  messageContent: { backgroundColor: '#fff', borderRadius: 16, padding: 12, elevation: 5 },
+  messageText: { fontSize: 16, color: '#000' },
+  timestamp: { fontSize: 12, color: '#666', marginTop: 4 },
+  inputContainer: { flexDirection: 'row', padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#ddd' },
+  input: { flex: 1, backgroundColor: '#f0f0f0', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#000' },
+  sendButton: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#007bff', justifyContent: 'center', alignItems: 'center' },
+  sendButtonDisabled: { backgroundColor: '#ccc' },
 });
