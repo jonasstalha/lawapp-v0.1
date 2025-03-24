@@ -1,150 +1,352 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   TextInput,
   ScrollView,
-  Pressable,
-  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Send, User, Bot } from 'lucide-react-native';
+import { Stack } from 'expo-router';
 import axios from 'axios';
-const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
-console.log("OpenAI API Key:", OPENAI_API_KEY);
-import Constants from 'expo-constants';
+import { EXPO_PUBLIC_OPENAI_API_KEY } from '@env';
+import { useTranslation } from 'react-i18next';
+import { BlurView } from 'expo-blur';
+import * as Haptics from 'expo-haptics';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '@/context/ThemeContext';
+import * as Localization from 'expo-localization';
 
-const OPENAI_API_KEY_EXPO = Constants.expoConfig?.extra?.openaiApiKey || OPENAI_API_KEY;
-
-if (!OPENAI_API_KEY_EXPO) {
-  console.error('OpenAI API key is not set in environment variables');
-}
-
-const EXAMPLE_QUESTIONS = [
-  "What are the requirements for starting a business in Morocco?",
-  "How do I file for divorce?",
-  "What are my rights as an employee?",
-  "How can I register a trademark?",
+// Legal categories for quick access
+const legalCategories = [
+  'marriage_procedures',
+  'property_registration',
+  'business_setup',
+  'divorce_process',
+  'work_permits',
+  'inheritance_law'
 ];
 
-async function getAIResponse(userMessage) {
-  try {
-    if (!OPENAI_API_KEY_EXPO) {
-      throw new Error('OpenAI API key is not configured');
-    }
-
-    const response = await axios.post(
-      'https://api.openai.com/v1/chat/completions',
-      {
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: userMessage }],
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${OPENAI_API_KEY_EXPO}`,
-        },
-      }
-    );
-
-    return response.data?.choices?.[0]?.message?.content || "Sorry, I didn't understand that.";
-  } catch (error) {
-    console.error('Error getting AI response:', error);
-    return "Error: Unable to process your request at the moment.";
-  }
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
 }
 
+// Add retry configuration
+const API_CONFIG = {
+  MAX_RETRIES: 2,
+  TIMEOUT: 8000,
+  RETRY_DELAY: 1000,
+};
+
+// Enhanced language detection
+const getPreferredLanguage = () => {
+  try {
+    const locale = Localization.locale?.split('-')[0] || 'en';
+    return ['ar', 'fr', 'en'].includes(locale) ? locale : 'en';
+  } catch (error) {
+    console.warn('Language detection failed:', error);
+    return 'en';  // Fallback to English
+  }
+};
+
 export default function ChatbotScreen() {
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
+  const { t } = useTranslation();
+  const { colors, mode } = useTheme();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const isDark = mode === 'dark';
+  const userLanguage = getPreferredLanguage();
+  
+  // Update theme colors to use the global theme
+  const theme = {
+    background: colors.background,
+    cardBg: colors.card,
+    userBubble: colors.primary,
+    text: colors.text,
+    inputBg: colors.input,
+    inputText: colors.text,
+    disabledButton: isDark ? '#404040' : '#E0E0E0',
+    disabledText: colors.subText,
+    loadingIndicator: colors.primary,
+  };
 
-  const sendMessage = async () => {
-    if (!message.trim()) return;
+  const triggerHapticFeedback = async () => {
+    if (Platform.OS !== 'web') {
+      try {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } catch (error) {
+        // Silently handle haptics errors
+        console.debug('Haptics not available:', error);
+      }
+    }
+  };
 
-    const userMessage = {
-      id: Date.now().toString(),
-      text: message,
-      isUser: true,
-      timestamp: new Date(),
+  const generateSystemPrompt = (userMessage: string) => {
+    const prompts = {
+      en: {
+        main: `You are a specialized Moroccan legal assistant. Provide:
+1) Exact required documents
+2) Where and how to apply
+3) Fees and costs
+4) Processing time
+
+Base all responses on the 2011 Moroccan Constitution and current laws.
+If the request is unclear, ask: "Which specific legal procedure do you need help with?"
+Respond in clear bullet points.`,
+        clarification: "Could you please specify which legal procedure you're inquiring about?"
+      },
+      fr: {
+        main: `Vous êtes un assistant juridique marocain spécialisé. Fournissez:
+1) Documents requis avec précision
+2) Où et comment postuler
+3) Frais et coûts
+4) Délais de traitement
+
+Basez toutes les réponses sur la Constitution marocaine de 2011 et les lois en vigueur.
+Si la demande n'est pas claire, demandez: "Quelle procédure légale spécifique vous intéresse?"
+Répondez en points clairs.`,
+        clarification: "Pourriez-vous préciser quelle procédure légale vous intéresse?"
+      },
+      ar: {
+        main: `أنت مساعد قانوني مغربي متخصص. قدم:
+1) الوثائق المطلوبة بدقة
+2) مكان وكيفية التقديم
+3) الرسوم والتكاليف
+4) المدة الزمنية للإجراءات
+
+استند إلى دستور المغرب 2011 والقوانين السارية.
+إذا كان الطلب غير واضح، اسأل: "ما هو الإجراء القانوني المحدد الذي تحتاج المساعدة به؟"
+قدم إجابات في نقاط واضحة.`,
+        clarification: "هل يمكنك تحديد الإجراء القانوني الذي تستفسر عنه؟"
+      }
     };
-    setMessages((prev) => [...prev, userMessage]);
-    setMessage('');
 
-    const loadingMessage = {
-      id: (Date.now() + 1).toString(),
-      text: "I'm processing your question...",
-      isUser: false,
-      timestamp: new Date(),
+    return prompts[userLanguage] || prompts.en;
+  };
+
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  const sendMessage = async (content: string, retryCount = 0) => {
+    try {
+      setIsLoading(true);
+      await triggerHapticFeedback();
+
+      const userMessage: Message = { role: 'user', content };
+      setMessages(prev => [...prev, userMessage]);
+      setInput('');
+
+      const { main: systemPrompt } = generateSystemPrompt(content);
+
+      const response = await axios.post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: 'gpt-4-turbo',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages.slice(-3),
+            userMessage,
+          ],
+          max_tokens: 250,
+          temperature: 0.1,
+          top_p: 0.9,
+          frequency_penalty: 0.5,
+          presence_penalty: 0.5
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${EXPO_PUBLIC_OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: API_CONFIG.TIMEOUT,
+        }
+      );
+
+      if (response.data?.choices?.[0]?.message?.content) {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: response.data.choices[0].message.content
+        }]);
+      } else {
+        throw new Error('Invalid API response');
+      }
+
+    } catch (error) {
+      console.error('API Error:', error);
+      
+      // Implement retry mechanism
+      if (retryCount < API_CONFIG.MAX_RETRIES) {
+        await sleep(API_CONFIG.RETRY_DELAY);
+        return sendMessage(content, retryCount + 1);
+      }
+
+      // Multilingual error messages
+      const errorMessages = {
+        en: "Sorry, I couldn't process your request. Please try again.",
+        fr: "Désolé, je n'ai pas pu traiter votre demande. Veuillez réessayer.",
+        ar: "عذراً، لم أتمكن من معالجة طلبك. يرجى المحاولة مرة أخرى."
+      };
+
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: errorMessages[userLanguage] || errorMessages.en
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const selectCategory = (category: string) => {
+    const categoryPrompts = {
+      'marriage_procedures': 'الإجراءات القانونية للزواج في المغرب',
+      'property_registration': 'تسجيل الممتلكات وإجراءاته القانونية',
+      'business_setup': 'خطوات إنشاء شركة في المغرب',
+      'divorce_process': 'إجراءات الطلاق القانونية',
+      'work_permits': 'تصاريح العمل للمواطنين والأجانب',
+      'inheritance_law': 'قوانين الميراث في المغرب'
     };
-    setMessages((prev) => [...prev, loadingMessage]);
 
-    const aiResponse = await getAIResponse(userMessage.text);
-
-    setMessages((prev) => [...prev.filter(msg => msg.id !== loadingMessage.id), {
-      id: (Date.now() + 2).toString(),
-      text: aiResponse,
-      isUser: false,
-      timestamp: new Date(),
-    }]);
+    sendMessage(categoryPrompts[category] || t(`legal_categories.${category}`));
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-      <ScrollView style={styles.messagesContainer}>
-        <View style={styles.examplesContainer}>
-          {EXAMPLE_QUESTIONS.map((question, index) => (
-            <Pressable key={index} style={styles.exampleButton} onPress={() => setMessage(question)}>
-              <Text style={styles.exampleText}>{question}</Text>
-            </Pressable>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <Stack.Screen
+        options={{
+          title: t('chatbot.title'),
+          headerStyle: { backgroundColor: colors.card },
+          headerShadowVisible: false,
+          headerTintColor: colors.text,
+        }}
+      />
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        {/* Categories */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ maxHeight: 60, paddingVertical: 10 }}
+        >
+          {legalCategories.map((category) => (
+            <TouchableOpacity
+              key={category}
+              onPress={() => selectCategory(category)}
+              style={{
+                marginHorizontal: 8,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                backgroundColor: colors.card,
+                borderRadius: 20,
+                shadowColor: colors.text,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: isDark ? 0.3 : 0.1,
+                shadowRadius: 4,
+                elevation: 3,
+              }}
+            >
+              <Text style={{ color: colors.text }}>
+                {t(`legal_categories.${category}`)}
+              </Text>
+            </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
 
-        {messages.map((msg) => (
-          <View key={msg.id} style={[styles.messageContainer, msg.isUser ? styles.userMessage : styles.botMessage]}>
-            <View style={styles.messageIconContainer}>
-              {msg.isUser ? <User size={20} color="#fff" /> : <Bot size={20} color="#fff" />}
+        {/* Chat Messages */}
+        <ScrollView
+          ref={scrollViewRef}
+          style={{ flex: 1 }}
+          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd()}
+        >
+          {messages.map((message, index) => (
+            <View
+              key={index}
+              style={{
+                alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
+                backgroundColor: message.role === 'user' ? colors.primary : colors.card,
+                padding: 12,
+                margin: 8,
+                borderRadius: 16,
+                maxWidth: '80%',
+                shadowColor: colors.text,
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: isDark ? 0.3 : 0.1,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
+            >
+              <Text
+                style={{
+                  color: message.role === 'user' ? '#fff' : colors.text,
+                }}
+              >
+                {message.content}
+              </Text>
             </View>
-            <View style={styles.messageContent}>
-              <Text style={styles.messageText}>{msg.text}</Text>
-              <Text style={styles.timestamp}>{msg.timestamp.toLocaleTimeString()}</Text>
+          ))}
+          {isLoading && (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+              <ActivityIndicator color={colors.primary} />
             </View>
+          )}
+        </ScrollView>
+
+        {/* Input Area */}
+        <BlurView 
+          intensity={isDark ? 40 : 80} 
+          tint={isDark ? "dark" : "light"} 
+          style={{ 
+            padding: 10,
+            backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)' 
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              backgroundColor: colors.input,
+              borderRadius: 25,
+              padding: 5,
+              marginBottom: Platform.OS === 'ios' ? 20 : 10,
+            }}
+          >
+            <TextInput
+              value={input}
+              onChangeText={setInput}
+              placeholder={t('chatbot.input_placeholder')}
+              placeholderTextColor={colors.subText}
+              style={{
+                flex: 1,
+                paddingHorizontal: 15,
+                paddingVertical: 10,
+                color: colors.text,
+              }}
+              multiline
+            />
+            <TouchableOpacity
+              onPress={() => input.trim() && sendMessage(input.trim())}
+              disabled={!input.trim() || isLoading}
+              style={{
+                padding: 10,
+                borderRadius: 20,
+                backgroundColor: input.trim() ? colors.primary : theme.disabledButton,
+                alignSelf: 'flex-end',
+              }}
+            >
+              <MaterialIcons
+                name="send"
+                size={24}
+                color={input.trim() ? '#fff' : theme.disabledText}
+              />
+            </TouchableOpacity>
           </View>
-        ))}
-      </ScrollView>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={message}
-          onChangeText={setMessage}
-          placeholder="Type your message..."
-          placeholderTextColor="#aaa"
-          multiline
-        />
-        <Pressable style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]} onPress={sendMessage} disabled={!message.trim()}>
-          <Send size={20} color={!message.trim() ? '#aaa' : '#fff'} />
-        </Pressable>
-      </View>
-    </KeyboardAvoidingView>
+        </BlurView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  messagesContainer: { flex: 1, padding: 16 },
-  examplesContainer: { gap: 8, padding: 16 },
-  exampleButton: { backgroundColor: '#ddd', borderRadius: 8, padding: 12 },
-  exampleText: { fontSize: 14, color: '#333' },
-  messageContainer: { flexDirection: 'row', marginBottom: 16, maxWidth: '80%' },
-  userMessage: { alignSelf: 'flex-end', flexDirection: 'row-reverse' },
-  botMessage: { alignSelf: 'flex-start' },
-  messageIconContainer: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#007bff', justifyContent: 'center', alignItems: 'center', marginHorizontal: 8 },
-  messageContent: { backgroundColor: '#fff', borderRadius: 16, padding: 12, elevation: 5 },
-  messageText: { fontSize: 16, color: '#000' },
-  timestamp: { fontSize: 12, color: '#666', marginTop: 4 },
-  inputContainer: { flexDirection: 'row', padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#ddd' },
-  input: { flex: 1, backgroundColor: '#f0f0f0', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#000' },
-  sendButton: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#007bff', justifyContent: 'center', alignItems: 'center' },
-  sendButtonDisabled: { backgroundColor: '#ccc' },
-});
