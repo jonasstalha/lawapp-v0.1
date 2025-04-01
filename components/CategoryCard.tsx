@@ -1,6 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Video as LucideIcon } from 'lucide-react-native';
+import { 
+  Scale, Gavel, Users, Building2, FileText, 
+  Landmark, Contract, Copyright, Shield, Bank, 
+  Globe, Leaf, Courthouse, BookOpen, Criminal 
+} from 'lucide-react-native';
 
 interface CategoryCardProps {
   icon: LucideIcon;

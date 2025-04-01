@@ -25,9 +25,17 @@ export const translations = {
       civilLaw: 'Civil Law',
       realEstate: 'Real Estate',
       rating: '⭐️ {rating}',
+      quickActions: {
+        findLawyer: 'Find a Lawyer',
+        chat: 'Chat',
+        appointments: 'Appointments',
+        documents: 'Documents'
+      },
       newsCategories: {
         laborLaw: 'Labor Law',
-        businessLaw: 'Business Law'
+        businessLaw: 'Business Law',
+        corporateLaw: 'Corporate Law',
+        environmentalLaw: 'Environmental Law'
       },
       newsItems: {
         laborLawChanges: 'New Labor Law Changes in 2025',
@@ -35,6 +43,8 @@ export const translations = {
         laborLawChangesDesc: 'Important updates to labor laws coming in 2025 that will affect both employers and employees.',
         businessRegistrationDesc: 'A comprehensive guide to registering your business and understanding legal requirements.',
         propertyRightsDesc: 'Everything you need to know about property rights and real estate laws.',
+        environmentalRegulations: 'Environmental Regulations Update',
+        environmentalRegulationsDesc: 'Latest updates on environmental regulations and compliance requirements'
       },
       heroSubtitle: 'Your trusted source for legal information and services',
       readingTime: '{{minutes}} min read',
@@ -73,7 +83,67 @@ export const translations = {
       needLegalHelp: 'Need Legal Assistance?',
       legalHelpDescription: 'Get immediate AI-powered legal guidance or schedule a consultation with an experienced lawyer.',
       getAIHelp: 'Get AI Help',
-      getLawyerConsulting: 'Consult a Lawyer'
+      getLawyerConsulting: 'Consult a Lawyer',
+      news: {
+        corporateLawChanges: {
+          title: 'New Corporate Law Changes 2024',
+          description: 'Important changes in corporate law that affect businesses in 2024',
+          authorTitle: 'Corporate Law Expert',
+          content: `# New Corporate Law Changes 2024
+
+## Overview
+The corporate law landscape is evolving in 2024, bringing significant changes that will impact businesses of all sizes. This article explores the key modifications and their implications.
+
+## Key Changes
+1. Digital Governance Requirements
+2. Enhanced Shareholder Rights
+3. ESG Reporting Mandates
+4. Remote Board Meetings Framework
+
+## Impact on Businesses
+These changes will require companies to:
+- Update their governance structures
+- Modify shareholder communication methods
+- Implement new reporting systems
+- Adapt to digital meeting requirements
+
+## Compliance Timeline
+Companies must comply with these changes by:
+- Q2 2024: Digital governance implementation
+- Q3 2024: ESG reporting framework
+- Q4 2024: Complete adaptation of all new requirements`
+        },
+        environmentalRegulations: {
+          title: 'Environmental Regulations Update',
+          description: 'Latest updates on environmental regulations and compliance requirements',
+          authorTitle: 'Environmental Law Specialist',
+          content: `# Environmental Regulations Update
+
+## Overview
+New environmental regulations are being implemented to address climate change and sustainability concerns. This comprehensive update covers all major changes and compliance requirements.
+
+## Key Updates
+1. Carbon Emissions Standards
+2. Waste Management Requirements
+3. Sustainable Resource Usage
+4. Environmental Impact Reporting
+
+## Business Requirements
+Companies must:
+- Monitor and report carbon emissions
+- Implement waste reduction programs
+- Develop sustainability strategies
+- Submit quarterly environmental reports
+
+## Implementation Timeline
+- Phase 1 (Q2 2024): Initial assessment and planning
+- Phase 2 (Q3 2024): System implementation
+- Phase 3 (Q4 2024): Full compliance required`
+        },
+        postNotFound: 'Post not found',
+        shareArticle: 'Share Article',
+        bookmarkArticle: 'Bookmark Article'
+      }
     },
     chatbot: {
       welcome: 'Welcome to Legal Assistant',
@@ -142,14 +212,16 @@ export const translations = {
         case_studies: 'Case Studies',
         legal_tips: 'Legal Tips',
         court_decisions: 'Court Decisions',
-        // ... other categories
+        industry_news: 'Industry News',
+        regulations: 'Regulations'
       },
       readingTime: '{{minutes}} min read',
       tags: {
         labor_law: 'Labor Law',
         legal_updates: 'Legal Updates',
         employment: 'Employment',
-        // ... other tags
+        environmental: 'Environmental',
+        regulations: 'Regulations'
       },
       relatedPosts: 'Related Articles',
       postNotFound: 'Article not found',
@@ -158,7 +230,8 @@ export const translations = {
       titles: {
         laborLawChanges: 'New Labor Law Changes in 2025',
         businessRegistration: 'Understanding Business Registration',
-        propertyRights: 'Complete Guide to Property Rights'
+        propertyRights: 'Complete Guide to Property Rights',
+        environmentalRegulations: 'Environmental Regulations Update'
       },
       descriptions: {
         laborLawChanges: 'Important updates to labor laws coming in 2025 that will affect both employers and employees.',
@@ -169,22 +242,6 @@ export const translations = {
         laborLawChanges: `# New Labor Law Changes in 2025\n\nThe upcoming changes to labor laws will bring significant modifications to how businesses and employees interact. Here's what you need to know.\n\n## Key Changes\n\n1. Working Hours Flexibility\n2. Remote Work Regulations\n3. Employee Benefits Updates\n\n## Impact on Businesses\n\nThese changes will require businesses to adapt their policies and procedures...`,
         businessRegistration: `# Understanding Business Registration\n\nStarting a new business requires careful attention to legal requirements and procedures. This guide will help you navigate the process.\n\n## Registration Steps\n\n1. Choose Your Business Structure\n2. Register Your Business Name\n3. Obtain Required Licenses\n\n## Legal Requirements\n\nEvery business must comply with specific regulations...`,
         propertyRights: `# Complete Guide to Property Rights\n\nUnderstanding your property rights is essential for any real estate transaction or dispute resolution.\n\n## Types of Property Rights\n\n1. Ownership Rights\n2. Usage Rights\n3. Development Rights\n\n## Common Issues\n\nProperty rights often involve complex legal considerations...`
-      },
-      categories: {
-        legal_updates: 'Legal Updates',
-        business_law: 'Business Law',
-        property_law: 'Property Law'
-      },
-      tags: {
-        labor_law: 'Labor Law',
-        legal_updates: 'Legal Updates',
-        employment: 'Employment',
-        business_law: 'Business Law',
-        company_registration: 'Company Registration',
-        startups: 'Startups',
-        property_law: 'Property Law',
-        real_estate: 'Real Estate',
-        legal_guide: 'Legal Guide'
       }
     }
   },
@@ -214,9 +271,17 @@ export const translations = {
       civilLaw: 'القانون المدني',
       realEstate: 'العقارات',
       rating: '⭐️ {rating}',
+      quickActions: {
+        findLawyer: 'ابحث عن محامي',
+        chat: 'محادثة',
+        appointments: 'مواعيد',
+        documents: 'مستندات'
+      },
       newsCategories: {
         laborLaw: 'قانون العمل',
-        businessLaw: 'قانون الأعمال'
+        businessLaw: 'قانون الأعمال',
+        corporateLaw: 'قانون الشركات',
+        environmentalLaw: 'القانون البيئي'
       },
       newsItems: {
         laborLawChanges: 'تغييرات جديدة في قانون العمل 2025',
@@ -224,6 +289,8 @@ export const translations = {
         laborLawChangesDesc: 'Important updates to labor laws coming in 2025 that will affect both employers and employees.',
         businessRegistrationDesc: 'A comprehensive guide to registering your business and understanding legal requirements.',
         propertyRightsDesc: 'Everything you need to know about property rights and real estate laws.',
+        environmentalRegulations: 'تحديث اللوائح البيئية',
+        environmentalRegulationsDesc: 'أحدث التحديثات حول اللوائح البيئية ومتطلبات الامتثال'
       },
       heroSubtitle: 'مصدرك الموثوق للمعلومات والخدمات القانونية',
       readingTime: '{{minutes}} دقائق للقراءة',
@@ -262,7 +329,56 @@ export const translations = {
       needLegalHelp: 'تحتاج مساعدة قانونية؟',
       legalHelpDescription: 'احصل على توجيه قانوني مباشر من جهاز الذكاء الإصطناعي أو إحجز موعد مع محامي متخصص.',
       getAIHelp: 'احصل على مساعدة قانونية',
-      getLawyerConsulting: 'إستشارة محامي'
+      getLawyerConsulting: 'إستشارة محامي',
+      news: {
+        corporateLawChanges: {
+          title: 'تغييرات جديدة في قانون الشركات 2024',
+          description: 'تغييرات مهمة في قانون الشركات تؤثر على الأعمال في 2024',
+          authorTitle: 'خبير قانون الشركات',
+          content: `# تغييرات جديدة في قانون الشركات 2024
+
+## نظرة عامة
+يتطور مشهد قانون الشركات في عام 2024، مما يجلب تغييرات كبيرة ستؤثر على الشركات من جميع الأحجام.
+
+## التغييرات الرئيسية
+1. متطلبات الحوكمة الرقمية
+2. تعزيز حقوق المساهمين
+3. متطلبات تقارير ESG
+4. إطار اجتماعات مجلس الإدارة عن بعد
+
+## التأثير على الأعمال
+ستتطلب هذه التغييرات من الشركات:
+- تحديث هياكل الحوكمة
+- تعديل طرق التواصل مع المساهمين
+- تنفيذ أنظمة تقارير جديدة
+- التكيف مع متطلبات الاجتماعات الرقمية`
+        },
+        environmentalRegulations: {
+          title: 'تحديث اللوائح البيئية',
+          description: 'آخر التحديثات حول اللوائح البيئية ومتطلبات الامتثال',
+          authorTitle: 'متخصص في القانون البيئي',
+          content: `# تحديث اللوائح البيئية
+
+## نظرة عامة
+يتم تنفيذ لوائح بيئية جديدة لمعالجة تغير المناخ ومخاوف الاستدامة.
+
+## التحديثات الرئيسية
+1. معايير انبعاثات الكربون
+2. متطلبات إدارة النفايات
+3. استخدام الموارد المستدامة
+4. تقارير الأثر البيئي
+
+## متطلبات الأعمال
+يجب على الشركات:
+- مراقبة وتقرير انبعاثات الكربون
+- تنفيذ برامج الحد من النفايات
+- تطوير استراتيجيات الاستدامة
+- تقديم تقارير بيئية ربع سنوية`
+        },
+        postNotFound: 'لم يتم العثور على المقال',
+        shareArticle: 'مشاركة المقال',
+        bookmarkArticle: 'حفظ المقال'
+      }
     },
     chatbot: {
       welcome: 'مرحباً بك في المساعد القانوني',
@@ -324,10 +440,33 @@ export const translations = {
       },
     },
     blogs: {
+      searchPlaceholder: 'ابحث عن المقالات...',
+      allCategories: 'جميع التصنيفات',
+      categories: {
+        legal_updates: 'التحديثات القانونية',
+        case_studies: 'دراسات الحالة',
+        legal_tips: 'نصائح قانونية',
+        court_decisions: 'قرارات المحكمة',
+        industry_news: 'أخبار الصناعة',
+        regulations: 'اللوائح التنظيمية'
+      },
+      readingTime: '{{minutes}} دقائق للقراءة',
+      tags: {
+        labor_law: 'قانون العمل',
+        legal_updates: 'التحديثات القانونية',
+        employment: 'التوظيف',
+        environmental: 'البيئة',
+        regulations: 'اللوائح التنظيمية'
+      },
+      relatedPosts: 'مقالات ذات صلة',
+      postNotFound: 'المقال غير موجود',
+      shareArticle: 'مشاركة المقال',
+      bookmarkArticle: 'حفظ المقال',
       titles: {
         laborLawChanges: 'تغييرات جديدة في قانون العمل 2025',
         businessRegistration: 'فهم تسجيل الأعمال التجارية',
-        propertyRights: 'دليل موجز عن حقوق الملكية'
+        propertyRights: 'دليل شامل لحقوق الملكية',
+        environmentalRegulations: 'تحديث اللوائح البيئية'
       },
       descriptions: {
         laborLawChanges: 'التحديثات الجديدة في قانون العمل 2025 ستؤثر على علاقة الأعمال والموظفين.',
@@ -335,63 +474,9 @@ export const translations = {
         propertyRights: 'كل ما تحتاج إلى معرفته عن حقوق الملكية والقانون العقاري.'
       },
       content: {
-        laborLawChanges: `# تغييرات جديدة في قانون العمل 2025
-
-ستؤثر التغييرات القادمة في قانون العمل على علاقة الأعمال والموظفين. هذا ما تحتاج إلى معرفته.
-
-## التغييرات الرئيسية
-
-1. مرونة فترات العمل
-2. الإرشادات البعيدة العمل
-3. تحديثات مزايا الموظفين
-
-## تأثيرها على الأعمال
-
-ستتطلب هذه التغييرات من الأعمال أن تعدل سياساتها وإجراءاتها...`,
-
-        businessRegistration: `# فهم تسجيل الأعمال التجارية
-
-بدء عمل جديد بحاجة إلى الحذر الكامل بشأن المتطلبات القانونية والإجراءات. سيساعدك هذا الدليل على تصفح العملية.
-
-## خطوات التسجيل
-
-1. اختيار بنية الأعمال
-2. تسجيل اسم الأعمال
-3. الحصول على التراخيص المطلوبة
-
-## المتطلبات القانونية
-
-يجب أن تتوافق كل عمل بشكل صحيح مع القوانين المعمول بها...`,
-
-        propertyRights: `# دليل موجز عن حقوق الملكية
-
-فهم حقوق الملكية الخاصة بك ضروري لأي عملية عقارية أو حل النزاعات.
-
-## أنواع حقوق الملكية
-
-1. حقون الامتلاك
-2. حقون الاستخدام
-3. حقون التطوير
-
-## المشاكل الشائعة
-
-حقون الملكية كثيرا ما تتضمن معايير قانونية عميقة...`
-      },
-      categories: {
-        legal_updates: 'التحديثات القانونية',
-        business_law: 'قانون الأعمال',
-        property_law: 'قانون الملكية'
-      },
-      tags: {
-        labor_law: 'قانون العمل',
-        legal_updates: 'التحديثات القانونية',
-        employment: 'التوظيف',
-        business_law: 'قانون الأعمال',
-        company_registration: 'تسجيل الشركة',
-        startups: 'الشركات الناشئة',
-        property_law: 'قانون الملكية',
-        real_estate: 'العقارات',
-        legal_guide: 'دليل قانوني'
+        laborLawChanges: `# تغييرات جديدة في قانون العمل 2025\n\nستؤثر التغييرات القادمة في قانون العمل على علاقة الأعمال والموظفين. هذا ما تحتاج إلى معرفته.\n\n## التغييرات الرئيسية\n\n1. مرونة فترات العمل\n2. الإرشادات البعيدة العمل\n3. تحديثات مزايا الموظفين\n\n## تأثيرها على الأعمال\n\nستتطلب هذه التغييرات من الأعمال أن تعدل سياساتها وإجراءاتها...`,
+        businessRegistration: `# فهم تسجيل الأعمال التجارية\n\nبدء عمل جديد بحاجة إلى الحذر الكامل بشأن المتطلبات القانونية والإجراءات. سيساعدك هذا الدليل على تصفح العملية.\n\n## خطوات التسجيل\n\n1. اختيار بنية الأعمال\n2. تسجيل اسم الأعمال\n3. الحصول على التراخيص المطلوبة\n\n## المتطلبات القانونية\n\nيجب أن تتوافق كل عمل بشكل صحيح مع القوانين المعمول بها...`,
+        propertyRights: `# دليل موجز عن حقوق الملكية\n\nفهم حقوق الملكية الخاصة بك ضروري لأي عملية عقارية أو حل النزاعات.\n\n## أنواع حقوق الملكية\n\n1. حقون الامتلاك\n2. حقون الاستخدام\n3. حقون التطوير\n\n## المشاكل الشائعة\n\nحقون الملكية كثيرا ما تتضمن معايير قانونية عميقة...`
       }
     }
   },
@@ -421,24 +506,34 @@ export const translations = {
       civilLaw: 'Droit Civil',
       realEstate: 'Immobilier',
       rating: '⭐️ {rating}',
+      quickActions: {
+        findLawyer: 'Trouver un Avocat',
+        chat: 'Chat',
+        appointments: 'Rendez-vous',
+        documents: 'Documents'
+      },
       newsCategories: {
         laborLaw: 'Droit du Travail',
-        businessLaw: 'Droit des Affaires'
+        businessLaw: 'Droit des Affaires',
+        corporateLaw: 'Droit des Sociétés',
+        environmentalLaw: 'Droit Environnemental'
       },
       newsItems: {
         laborLawChanges: 'Nouvelles modifications du droit du travail en 2025',
         businessRegistration: 'Comprendre l\'enregistrement des entreprises',
-        laborLawChangesDesc: 'Important updates to labor laws coming in 2025 that will affect both employers and employees.',
-        businessRegistrationDesc: 'A comprehensive guide to registering your business and understanding legal requirements.',
-        propertyRightsDesc: 'Everything you need to know about property rights and real estate laws.',
+        laborLawChangesDesc: 'Mises à jour importantes des lois du travail à venir en 2025 qui affecteront les employeurs et les employés.',
+        businessRegistrationDesc: 'Un guide complet pour enregistrer votre entreprise et comprendre les exigences légales.',
+        propertyRightsDesc: 'Tout ce que vous devez savoir sur les droits de propriété et les lois immobilières.',
+        environmentalRegulations: 'Mise à jour des Règlementations Environnementales',
+        environmentalRegulationsDesc: 'Dernières mises à jour sur les réglementations environnementales et les exigences de conformité'
       },
       heroSubtitle: 'Votre source de confiance pour l\'information et les services juridiques',
       readingTime: '{{minutes}} min de lecture',
       cases: 'Affaires',
       exp: 'Expérience',
       ads: {
-        premiumConsultation: 'Obtenir une Consultation Juridique Premium',
-        learnMore: 'En savoir plus →',
+        premiumConsultation: 'Obtenez une Consultation Juridique Premium',
+        learnMore: 'En Savoir Plus →',
         needLegalHelp: 'Besoin d\'Aide Juridique ?',
         getFreeConsultation: 'Obtenir une Consultation Gratuite'
       },
@@ -446,8 +541,8 @@ export const translations = {
         sarahAhmed: 'Sarah Ahmed',
         mohamedHassan: 'Mohamed Hassan',
         leilaKarim: 'Leila Karim',
-        online: 'En ligne',
-        inPerson: 'En personne',
+        online: 'En Ligne',
+        inPerson: 'En Personne',
         bookNow: 'Réserver',
         verified: 'Vérifié',
         reviews: 'Avis',
@@ -455,32 +550,83 @@ export const translations = {
         perConsultation: 'par consultation',
         bookConsultation: 'Réserver une Consultation',
         availability: {
-          online: 'En ligne',
-          offline: 'En personne',
-          both: 'En ligne & En personne'
+          online: 'En Ligne',
+          offline: 'En Personne',
+          both: 'En Ligne & En Personne'
         }
       },
       blogCategories: {
-        legal_updates: 'Mises à jour légales',
-        case_studies: 'Études de cas',
-        legal_tips: 'Conseils juridiques',
-        court_decisions: 'Décisions de cour'
+        legal_updates: 'Actualités Juridiques',
+        case_studies: 'Études de Cas',
+        legal_tips: 'Conseils Juridiques',
+        court_decisions: 'Décisions de Justice',
+        industry_news: 'Actualités du Secteur',
+        regulations: 'Réglementations'
       },
-      needLegalHelp: 'Besoin d\'Aide Juridique ?',
-      legalHelpDescription: 'Obtenez une assistance juridique immédiate de l\'IA ou planifiez une consultation avec un avocat expérimenté.',
-      getAIHelp: 'Obtenir une aide juridique',
-      getLawyerConsulting: 'Consultation Avocat'
+      needLegalHelp: 'Besoin d\'Assistance Juridique ?',
+      legalHelpDescription: 'Obtenez des conseils juridiques immédiats par IA ou planifiez une consultation avec un avocat expérimenté.',
+      getAIHelp: 'Aide IA',
+      getLawyerConsulting: 'Consulter un Avocat',
+      news: {
+        corporateLawChanges: {
+          title: 'Nouvelles Modifications du Droit des Sociétés 2024',
+          description: 'Changements importants dans le droit des sociétés affectant les entreprises en 2024',
+          authorTitle: 'Expert en Droit des Sociétés',
+          content: `# Nouvelles Modifications du Droit des Sociétés 2024
+
+## Aperçu
+Le paysage du droit des sociétés évolue en 2024, apportant des changements significatifs qui auront un impact sur les entreprises de toutes tailles.
+
+## Changements Clés
+1. Exigences de Gouvernance Numérique
+2. Renforcement des Droits des Actionnaires
+3. Mandats de Reporting ESG
+4. Cadre des Réunions de Conseil à Distance
+
+## Impact sur les Entreprises
+Ces changements exigeront des entreprises de:
+- Mettre à jour leurs structures de gouvernance
+- Modifier les méthodes de communication avec les actionnaires
+- Mettre en œuvre de nouveaux systèmes de reporting
+- S'adapter aux exigences des réunions numériques`
+        },
+        environmentalRegulations: {
+          title: 'Mise à Jour des Réglementations Environnementales',
+          description: 'Dernières mises à jour sur les réglementations environnementales et les exigences de conformité',
+          authorTitle: 'Spécialiste en Droit Environnemental',
+          content: `# Mise à Jour des Réglementations Environnementales
+
+## Aperçu
+De nouvelles réglementations environnementales sont mises en œuvre pour faire face au changement climatique et aux préoccupations de durabilité.
+
+## Mises à Jour Clés
+1. Normes d'Émissions de Carbone
+2. Exigences de Gestion des Déchets
+3. Utilisation Durable des Ressources
+4. Rapports d'Impact Environnemental
+
+## Exigences pour les Entreprises
+Les entreprises doivent:
+- Surveiller et déclarer les émissions de carbone
+- Mettre en œuvre des programmes de réduction des déchets
+- Développer des stratégies de durabilité
+- Soumettre des rapports environnementaux trimestriels`
+        },
+        postNotFound: 'Article non trouvé',
+        shareArticle: 'Partager l\'Article',
+        bookmarkArticle: 'Marquer l\'Article'
+      }
     },
     chatbot: {
       welcome: 'Bienvenue sur l\'Assistant Juridique',
       placeholder: 'Tapez votre question juridique ici...',
       startChat: 'Démarrer la Discussion',
-      connecting: 'Connexion en cours...',
-      examples: 'Exemples de Questions',
+      connecting: 'Connexion...',
+      examples: 'Questions Exemples',
       title: 'Assistant Juridique',
       input_placeholder: 'Posez votre question juridique...',
       send: 'Envoyer',
-      thinking: 'En réflexion...',
+      thinking: 'Réflexion...',
       error: 'Une erreur est survenue',
       retry: 'Réessayer'
     },
@@ -490,7 +636,7 @@ export const translations = {
       civil_law: 'Droit Civil',
       commercial_law: 'Droit Commercial',
       labor_law: 'Droit du Travail',
-      property_law: 'Droit de la Propriété',
+      property_law: 'Droit Immobilier',
     },
     lawyers: {
       search: 'Rechercher un Avocat',
@@ -499,11 +645,11 @@ export const translations = {
       location: 'Localisation',
       experience: 'Expérience',
       book: 'Réserver',
-      rating: 'Évaluation',
-      yearsExperience: 'Années d\'expérience',
-      consultationFee: 'Frais de consultation',
-      viewProfile: 'Voir le profil',
-      contactNow: 'Contacter maintenant',
+      rating: 'Note',
+      yearsExperience: 'Années d\'Expérience',
+      consultationFee: 'Frais de Consultation',
+      viewProfile: 'Voir le Profil',
+      contactNow: 'Contacter Maintenant',
       sarahAhmed: 'Sarah Ahmed',
       mohamedHassan: 'Mohamed Hassan',
       leilaKarim: 'Leila Karim',
@@ -511,11 +657,15 @@ export const translations = {
       perConsultation: 'par consultation',
       bookConsultation: 'Réserver une Consultation',
       availability: {
-        online: 'En ligne',
-        offline: 'En personne',
-        both: 'En ligne & En personne'
+        online: 'En Ligne',
+        offline: 'En Personne',
+        both: 'En Ligne & En Personne'
       },
-      online: 'En ligne',
+      online: 'En Ligne',
+      inPerson: 'En Personne',
+      bookNow: 'Réserver',
+      verified: 'Vérifié',
+      reviews: 'Avis',
     },
     offices: {
       searchOffice: 'Rechercher un Bureau',
@@ -523,78 +673,47 @@ export const translations = {
       categories: {
         courts: 'Tribunaux',
         notaries: 'Notaires',
-        police: 'Postes de Police',
+        police: 'Commissariats',
       },
     },
     blogs: {
+      searchPlaceholder: 'Rechercher des articles...',
+      allCategories: 'Toutes les Catégories',
+      categories: {
+        legal_updates: 'Actualités Juridiques',
+        case_studies: 'Études de Cas',
+        legal_tips: 'Conseils Juridiques',
+        court_decisions: 'Décisions de Justice',
+        industry_news: 'Actualités du Secteur',
+        regulations: 'Réglementations'
+      },
+      readingTime: '{{minutes}} min de lecture',
+      tags: {
+        labor_law: 'Droit du Travail',
+        legal_updates: 'Actualités Juridiques',
+        employment: 'Emploi',
+        environmental: 'Environnement',
+        regulations: 'Réglementations'
+      },
+      relatedPosts: 'Articles Connexes',
+      postNotFound: 'Article non trouvé',
+      shareArticle: 'Partager l\'Article',
+      bookmarkArticle: 'Marquer l\'Article',
       titles: {
         laborLawChanges: 'Nouvelles modifications du droit du travail en 2025',
         businessRegistration: 'Comprendre l\'enregistrement des entreprises',
-        propertyRights: 'Guide complet sur les droits de propriété'
+        propertyRights: 'Guide complet des droits de propriété',
+        environmentalRegulations: 'Mise à jour des Règlementations Environnementales'
       },
       descriptions: {
-        laborLawChanges: 'Important updates to labor laws coming in 2025 that will affect both employers and employees.',
-        businessRegistration: 'A comprehensive guide to registering your business and understanding legal requirements.',
-        propertyRights: 'Everything you need to know about property rights and real estate laws.'
+        laborLawChanges: 'Mises à jour importantes des lois du travail à venir en 2025 qui affecteront les employeurs et les employés.',
+        businessRegistration: 'Un guide complet pour enregistrer votre entreprise et comprendre les exigences légales.',
+        propertyRights: 'Tout ce que vous devez savoir sur les droits de propriété et les lois immobilières.'
       },
       content: {
-        laborLawChanges: `# Nouvelles modifications du droit du travail en 2025
-
-Les modifications à venir dans le droit du travail vont apporter des modifications significatives à la relation entre les entreprises et les employés. Voici ce que vous devez savoir.
-
-## Changements principaux
-
-1. Flexibilité des heures de travail
-2. Régulations du travail à distance
-3. Mises à jour des avantages des employés
-
-## Impact sur les entreprises
-
-Ces modifications vont nécessiter aux entreprises de modifier leurs politiques et procédures...`,
-
-        businessRegistration: `# Comprendre l\'enregistrement des entreprises
-
-Démarrer une nouvelle entreprise nécessite une attention complète aux exigences légales et aux procédures. Ce guide vous aidera à naviguer le processus.
-
-## Étapes d\'enregistrement
-
-1. Choisir la structure de l\'entreprise
-2. Enregistrer le nom de l\'entreprise
-3. Obtenir les permis nécessaires
-
-## Exigences légales
-
-Toutes les entreprises doivent se conformer aux réglementations spécifiques...`,
-
-        propertyRights: `# Guide complet sur les droits de propriété
-
-Comprendre vos droits de propriété est essentiel pour toute transaction immobilière ou résolution de litige.
-
-## Types de droits de propriété
-
-1. Droits d\'acquisition
-2. Droits d\'utilisation
-3. Droits de développement
-
-## Problèmes courants
-
-Les droits de propriété impliquent souvent des considérations légales complexes...`
-      },
-      categories: {
-        legal_updates: 'Mises à jour légales',
-        business_law: 'Droit des Affaires',
-        property_law: 'Droit de la Propriété'
-      },
-      tags: {
-        labor_law: 'Droit du Travail',
-        legal_updates: 'Mises à jour légales',
-        employment: 'Employment',
-        business_law: 'Droit des Affaires',
-        company_registration: 'Enregistrement de l\'entreprise',
-        startups: 'Startups',
-        property_law: 'Droit de la Propriété',
-        real_estate: 'Immobilier',
-        legal_guide: 'Guide Juridique'
+        laborLawChanges: `# Nouvelles modifications du droit du travail en 2025\n\nLes modifications à venir dans le droit du travail vont apporter des modifications significatives à la relation entre les entreprises et les employés. Voici ce que vous devez savoir.\n\n## Changements principaux\n\n1. Flexibilité des heures de travail\n2. Régulations du travail à distance\n3. Mises à jour des avantages des employés\n\n## Impact sur les entreprises\n\nCes modifications vont nécessiter aux entreprises de modifier leurs politiques et procédures...`,
+        businessRegistration: `# Comprendre l'enregistrement des entreprises\n\nDémarrer une nouvelle entreprise nécessite une attention complète aux exigences légales et aux procédures. Ce guide vous aidera à naviguer le processus.\n\n## Étapes d'enregistrement\n\n1. Choisir la structure de l'entreprise\n2. Enregistrer le nom de l'entreprise\n3. Obtenir les permis nécessaires\n\n## Exigences légales\n\nToutes les entreprises doivent se conformer aux réglementations spécifiques...`,
+        propertyRights: `# Guide complet sur les droits de propriété\n\nComprendre vos droits de propriété est essentiel pour toute transaction immobilière ou résolution de litige.\n\n## Types de droits de propriété\n\n1. Droits d'acquisition\n2. Droits d'utilisation\n3. Droits de développement\n\n## Problèmes courants\n\nLes droits de propriété impliquent souvent des considérations légales complexes...`
       }
     }
   },

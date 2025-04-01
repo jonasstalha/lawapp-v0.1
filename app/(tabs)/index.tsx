@@ -1,396 +1,347 @@
 import React from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, Pressable, LinearGradient } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, Pressable } from 'react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTheme } from '@/context/ThemeContext';
 import { getCardStyle } from '@/utils/styleUtils';
 import { useRouter } from 'expo-router';
-import { CategoryCard } from '@/components/CategoryCard';
-import { Scale, Gavel, Users, Building2, FileText, ChevronRight, MessageCircle, Calendar, Star, Check, Globe, MapPin, Clock, CheckCircle2 } from 'lucide-react-native';
+import { Scale, Gavel, Users, Building2, FileText, ChevronRight, MessageCircle, Calendar, Star, Check, Globe, MapPin, Clock, CheckCircle2, BookOpen, Briefcase, Building, DollarSign, HardHat, Globe2, Leaf, Shield, ScrollText, Search, Bell, ArrowRight } from 'lucide-react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 
-// Move this to a separate data file or API call
-const BLOG_CATEGORIES = [
-  'legal_updates', 'case_studies', 'legal_tips', 'court_decisions'
+// Existing constants and component definitions...
+
+interface NewsItem {
+  id: number;
+  slug: string;
+  image: string;
+  categoryKey: string;
+  date: string;
+  titleKey: string;
+  descriptionKey: string;
+  author: {
+    name: string;
+    title: string;
+    image: string;
+  }
+}
+
+const NEWS_ITEMS: NewsItem[] = [
+  {
+    id: 1,
+    slug: 'new-corporate-law-2024',
+    image: 'https://picsum.photos/800/600',
+    categoryKey: 'home.newsCategories.corporateLaw',
+    date: '2024-03-15',
+    titleKey: 'home.news.corporateLawChanges.title',
+    descriptionKey: 'home.news.corporateLawChanges.description',
+    author: {
+      name: 'John Doe',
+      title: 'home.news.corporateLawChanges.authorTitle',
+      image: 'https://i.pravatar.cc/150?img=1'
+    }
+  },
+  {
+    id: 2,
+    slug: 'environmental-regulations-update',
+    image: 'https://picsum.photos/800/600?random=2',
+    categoryKey: 'home.newsCategories.environmentalLaw',
+    date: '2024-03-14',
+    titleKey: 'home.news.environmentalRegulations.title',
+    descriptionKey: 'home.news.environmentalRegulations.description',
+    author: {
+      name: 'Jane Smith',
+      title: 'home.news.environmentalRegulations.authorTitle',
+      image: 'https://i.pravatar.cc/150?img=2'
+    }
+  }
 ];
 
-const NEWS_ITEMS = [
-  {
-    id: '1',
-    titleKey: 'home.newsItems.laborLawChanges',
-    descriptionKey: 'home.newsItems.laborLawChangesDesc',
-    image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800',
-    categoryKey: 'home.newsCategories.laborLaw',
-    slug: 'labor-law-changes-2025',
-    readingTime: '5',
-    date: '2024-03-20',
-    author: {
-      name: 'Dr. Ahmed Hassan',
-      title: 'Labor Law Expert',
-      image: 'https://example.com/author1.jpg'
-    },
-    tags: ['labor_law', 'legal_updates', 'employment']
-  },
-  {
-    id: '2',
-    titleKey: 'home.newsItems.businessRegistration',
-    descriptionKey: 'home.newsItems.businessRegistrationDesc',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800',
-    categoryKey: 'home.newsCategories.businessLaw',
-    slug: 'understanding-business-registration',
-    readingTime: '7',
-    date: '2024-03-19',
-    author: {
-      name: 'Sarah Ahmed',
-      title: 'Business Law Specialist',
-      image: 'https://example.com/author2.jpg'
-    },
-    tags: ['business_law', 'company_registration', 'startups']
-  },
-  {
-    id: '3',
-    titleKey: 'home.newsItems.propertyRights',
-    descriptionKey: 'home.newsItems.propertyRightsDesc',
-    image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800',
-    categoryKey: 'home.newsCategories.propertyLaw',
-    slug: 'property-rights-guide',
-    readingTime: '6',
-    date: '2024-03-18',
-    author: {
-      name: 'Leila Mahmoud',
-      title: 'Property Law Expert',
-      image: 'https://example.com/author3.jpg'
-    },
-    tags: ['property_law', 'real_estate', 'legal_guide']
-  }
+const BLOG_CATEGORIES = [
+  'legal_updates',
+  'case_studies',
+  'legal_tips',
+  'industry_news',
+  'regulations'
 ];
 
 const FEATURED_LAWYERS = [
   {
-    id: '1',
-    nameKey: 'lawyers.names.sarahAhmed',
-    specializationKey: 'legal_categories.business_law',
-    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800',
+    id: 1,
+    slug: 'john-doe',
+    name: 'John Doe',
+    specialization: 'Corporate Law',
+    image: 'https://i.pravatar.cc/300?img=3',
     rating: 4.9,
-    reviewCount: 127,
-    experience: 8,
-    languages: ['en', 'ar', 'fr'],
-    availability: 'online',
-    consultationFee: 150,
-    verifiedStatus: true,
-    slug: 'sarah-ahmed'
-  },
-  {
-    id: '2',
-    nameKey: 'lawyers.names.mohamedHassan',
-    specializationKey: 'legal_categories.criminal_law',
-    image: 'https://images.unsplash.com/photo-1556157382-97eda2f9e2bf?w=800',
-    rating: 4.8,
-    reviewCount: 98,
-    experience: 12,
-    languages: ['ar', 'en'],
-    availability: 'offline',
-    consultationFee: 200,
-    verifiedStatus: true,
-    slug: 'mohamed-hassan'
-  },
-  {
-    id: '3',
-    nameKey: 'lawyers.names.leilaKarim',
-    specializationKey: 'legal_categories.family_law',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800',
-    rating: 4.7,
-    reviewCount: 156,
+    reviewCount: 128,
     experience: 15,
-    languages: ['ar', 'en', 'fr'],
-    availability: 'both',
-    consultationFee: 180,
-    verifiedStatus: true,
-    slug: 'leila-karim'
+    isVerified: true,
+    languages: ['English', 'Arabic'],
+    availability: {
+      nextSlot: 'Tomorrow',
+      status: 'available'
+    },
+    price: 300
+  },
+  {
+    id: 2,
+    slug: 'jane-smith',
+    name: 'Jane Smith',
+    specialization: 'Family Law',
+    image: 'https://i.pravatar.cc/300?img=4',
+    rating: 4.8,
+    reviewCount: 95,
+    experience: 12,
+    isVerified: true,
+    languages: ['English', 'French', 'Arabic'],
+    availability: {
+      nextSlot: 'Today',
+      status: 'available'
+    },
+    price: 250
   }
 ];
 
-const LawyerCard = ({ lawyer, onPress }) => {
+const HomeHeader = () => {
   const { t } = useTranslation();
-  const { colors, mode } = useTheme();
-  const isDark = mode === 'dark';
+  const { colors } = useTheme();
   const router = useRouter();
 
   return (
-    <View style={styles.lawyerCardContainer}>
-      <Pressable 
-        style={[styles.lawyerCard, getCardStyle(isDark)]}
-        onPress={onPress}
-      >
-        <View style={styles.lawyerImageContainer}>
-          <Image 
-            source={{ uri: lawyer.image }} 
-            style={styles.lawyerImage}
-          />
-          {lawyer.verifiedStatus && (
-            <View style={[styles.verifiedBadge, { backgroundColor: colors.primary }]}>
-              <CheckCircle2 size={12} color="white" />
-            </View>
-          )}
-          <View style={styles.quickStats}>
-            <View style={styles.statBadge}>
-              <Star size={12} color="#FFD700" />
-              <Text style={styles.statText}>{lawyer.rating}</Text>
-            </View>
-            <View style={styles.statBadge}>
-              <Clock size={12} color="white" />
-              <Text style={styles.statText}>{lawyer.experience}Y</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.lawyerInfo}>
-          <View style={styles.nameContainer}>
-            <Text style={[styles.lawyerName, { color: colors.text }]} numberOfLines={1}>
-              {t(lawyer.nameKey)}
-            </Text>
-            <View style={[styles.priceBadge, { backgroundColor: colors.primary + '20' }]}>
-              <Text style={[styles.priceText, { color: colors.primary }]}>
-                ${lawyer.consultationFee}
-              </Text>
-            </View>
-          </View>
-
-          <Text style={[styles.lawyerSpecialization, { color: colors.subText }]} numberOfLines={1}>
-            {t(lawyer.specializationKey)}
-          </Text>
-
-          <View style={styles.detailsRow}>
-            <View style={styles.availabilityContainer}>
-              {lawyer.availability === 'online' || lawyer.availability === 'both' ? (
-                <View style={styles.availabilityBadge}>
-                  <Globe size={12} color={colors.primary} />
-                  <Text style={[styles.availabilityText, { color: colors.primary }]}>
-                    {t('lawyers.online')}
-                  </Text>
-                </View>
-              ) : null}
-              {lawyer.availability === 'offline' || lawyer.availability === 'both' ? (
-                <View style={styles.availabilityBadge}>
-                  <MapPin size={12} color={colors.primary} />
-                  <Text style={[styles.availabilityText, { color: colors.primary }]}>
-                    {t('lawyers.inPerson')}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-          </View>
-
-          <View style={styles.languagesRow}>
-            {lawyer.languages.map((lang) => (
-              <View 
-                key={lang} 
-                style={[
-                  styles.languageBadge,
-                  { backgroundColor: colors.border }
-                ]}
-              >
-                <Text style={[styles.languageText, { color: colors.text }]}>
-                  {t(`language.${lang}`)}
-                </Text>
-              </View>
-            ))}
-          </View>
-
-          <Pressable 
-            style={[styles.bookButton, { backgroundColor: colors.primary }]}
-            onPress={() => router.push(`/lawyers/${lawyer.slug}/book`)}
-          >
-            <Text style={styles.bookButtonText}>
-              {t('lawyers.bookNow')}
-            </Text>
-          </Pressable>
-        </View>
-      </Pressable>
+    <View style={styles.headerContainer}>
+      <View style={styles.headerContent}>
+      </View>
     </View>
   );
 };
 
-export default function HomeScreen() {
+const QuickActions = () => {
   const { t } = useTranslation();
-  const { colors, mode } = useTheme();
-  const isDark = mode === 'dark';
+  const { colors } = useTheme();
   const router = useRouter();
 
-  const handleNewsPress = (slug: string) => {
-    router.push(`/news/${slug}`);
-  };
+  const QUICK_ACTIONS = [
+    {
+      icon: Scale,
+      label: 'home.quickActions.findLawyer',
+      color: '#4CAF50',
+      route: '/lawyers'
+    },
+    {
+      icon: MessageCircle,
+      label: 'home.quickActions.chat',
+      color: '#2196F3',
+      route: '/chat'
+    },
+    {
+      icon: Calendar,
+      label: 'home.quickActions.appointments',
+      color: '#FF9800',
+      route: '/appointments'
+    },
+    {
+      icon: FileText,
+      label: 'home.quickActions.documents',
+      color: '#9C27B0',
+      route: '/documents'
+    }
+  ];
 
-  const handleLawyerPress = (slug: string) => {
-    router.push(`/lawyers/${slug}`);
-  };
-
-  const handleCategoryPress = (category: string) => {
-    router.push(`/news/category/${category}`);
-  };
-
-  const renderBlogCategories = () => (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={styles.blogCategoriesContainer}
-    >
-      {BLOG_CATEGORIES.map((category) => (
+  return (
+    <View style={styles.quickActionsContainer}>
+      {QUICK_ACTIONS.map((action) => (
         <Pressable
-          key={category}
-          style={[styles.blogCategoryChip, { backgroundColor: colors.primary }]}
-          onPress={() => handleCategoryPress(category)}
+          key={action.label}
+          style={styles.quickActionButton}
+          onPress={() => router.push(action.route)}
         >
-          <Text style={styles.blogCategoryText}>
-            {t(`home.blogCategories.${category}`)}
+          <View style={[styles.quickActionIcon, { backgroundColor: `${action.color}15` }]}>
+            <action.icon size={24} color={action.color} />
+          </View>
+          <Text style={[styles.quickActionLabel, { color: colors.text }]}>
+            {t(action.label)}
           </Text>
         </Pressable>
       ))}
-    </ScrollView>
-  );
-
-  const renderNewsCard = (item: typeof NEWS_ITEMS[0]) => (
-    <Pressable 
-      key={item.id} 
-      style={[styles.newsCard, getCardStyle(isDark)]}
-      onPress={() => handleNewsPress(item.slug)}
-    >
-      <Image 
-        source={{ uri: item.image }} 
-        style={styles.newsImage} 
-      />
-      <View style={styles.newsContent}>
-        <View style={styles.newsMetadata}>
-          <Text style={[styles.newsCategory, { color: colors.primary }]}>
-            {t(item.categoryKey)}
-          </Text>
-          <View style={styles.readingTimeContainer}>
-            <Calendar size={12} color={colors.subText} />
-            <Text style={[styles.newsDate, { color: colors.subText }]}>
-              {new Date(item.date).toLocaleDateString()}
-            </Text>
-          </View>
-        </View>
-        <Text style={[styles.newsTitle, { color: colors.text }]}>
-          {t(item.titleKey)}
-        </Text>
-        <Text 
-          numberOfLines={2} 
-          style={[styles.newsDescription, { color: colors.subText }]}
-        >
-          {t(item.descriptionKey)}
-        </Text>
-        <View style={styles.authorContainer}>
-          <Image 
-            source={{ uri: item.author.image }} 
-            style={styles.authorImage} 
-          />
-          <View>
-            <Text style={[styles.authorName, { color: colors.text }]}>
-              {item.author.name}
-            </Text>
-            <Text style={[styles.authorTitle, { color: colors.subText }]}>
-              {item.author.title}
-            </Text>
-          </View>
-        </View>
-      </View>
-    </Pressable>
-  );
-
-  const renderFeaturedLawyers = () => (
-    <View style={styles.sectionWrapper}>
-      <View style={styles.sectionHeaderContainer}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          {t('home.featuredLawyers')}
-        </Text>
-        <Pressable onPress={() => router.push('/lawyers')}>
-          <View style={styles.viewAllContainer}>
-            <Text style={[styles.viewAll, { color: colors.primary }]}>
-              {t('home.viewAll')}
-            </Text>
-            <ChevronRight size={16} color={colors.primary} />
-          </View>
-        </Pressable>
-      </View>
-
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.lawyersContainer}
-      >
-        {FEATURED_LAWYERS.map((lawyer) => (
-          <LawyerCard
-            key={lawyer.id}
-            lawyer={lawyer}
-            onPress={() => router.push(`/lawyers/${lawyer.slug}`)}
-          />
-        ))}
-      </ScrollView>
     </View>
   );
+};
+
+const HomeScreen = () => {
+  const { t } = useTranslation();
+  const { colors, mode } = useTheme();
+  const router = useRouter();
+  const isDark = mode === 'dark';
+
+  const renderNewsCard = (item: NewsItem) => {
+    const { t } = useTranslation();
+    const { colors } = useTheme();
+    const router = useRouter();
+    const isDark = false;
+
+    return (
+      <Pressable 
+        key={item.id} 
+        style={[styles.newsCard, getCardStyle(isDark)]}
+        onPress={() => router.push(`/blog/${item.slug}`)}
+      >
+        <Image 
+          source={{ uri: item.image }} 
+          style={styles.newsImage} 
+        />
+        <View style={styles.newsContent}>
+          <View style={styles.newsMetadata}>
+            <Text style={[styles.newsCategory, { color: colors.primary }]}>
+              {t(item.categoryKey)}
+            </Text>
+            <View style={styles.readingTimeContainer}>
+              <Calendar size={12} color={colors.subText} />
+              <Text style={[styles.newsDate, { color: colors.subText }]}>
+                {new Date(item.date).toLocaleDateString()}
+              </Text>
+            </View>
+          </View>
+          <Text style={[styles.newsTitle, { color: colors.text }]}>
+            {t(item.titleKey)}
+          </Text>
+          <Text 
+            numberOfLines={2} 
+            style={[styles.newsDescription, { color: colors.subText }]}
+          >
+            {t(item.descriptionKey)}
+          </Text>
+          <View style={styles.authorContainer}>
+            <Image 
+              source={{ uri: item.author.image }} 
+              style={styles.authorImage} 
+            />
+            <View>
+              <Text style={[styles.authorName, { color: colors.text }]}>
+                {item.author.name}
+              </Text>
+              <Text style={[styles.authorTitle, { color: colors.subText }]}>
+                {t(item.author.title)}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Pressable>
+    );
+  };
+
+  const renderFeaturedLawyers = () => {
+    const { t } = useTranslation();
+    const { colors } = useTheme();
+    const router = useRouter();
+    const isDark = false;
+
+    return (
+      <View style={styles.sectionWrapper}>
+        <View style={styles.sectionHeaderContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            {t('home.featuredLawyers')}
+          </Text>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.lawyersContainer}
+        >
+          {FEATURED_LAWYERS.map((lawyer) => (
+            <Pressable 
+              key={lawyer.id}
+              style={[styles.lawyerCardContainer]} 
+              onPress={() => router.push(`/lawyers/${lawyer.slug}`)}
+            >
+              <View style={[styles.lawyerCard, getCardStyle(isDark)]}>
+                <View style={styles.lawyerImageContainer}>
+                  <Image 
+                    source={{ uri: lawyer.image }}
+                    style={styles.lawyerImage}
+                  />
+                  {lawyer.isVerified && (
+                    <View style={[styles.verifiedBadge, { backgroundColor: colors.primary }]}>
+                      <CheckCircle2 size={12} color="white" />
+                    </View>
+                  )}
+                  <View style={styles.quickStats}>
+                    <View style={styles.statBadge}>
+                      <Star size={12} color="white" />
+                      <Text style={styles.statText}>{lawyer.rating}</Text>
+                    </View>
+                    <View style={styles.statBadge}>
+                      <MessageCircle size={12} color="white" />
+                      <Text style={styles.statText}>{lawyer.reviewCount}</Text>
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.lawyerInfo}>
+                  <View style={styles.nameContainer}>
+                    <Text style={[styles.lawyerName, { color: colors.text }]}>
+                      {lawyer.name}
+                    </Text>
+                    <View style={[styles.priceBadge, { backgroundColor: colors.primary + '15' }]}>
+                      <Text style={[styles.priceText, { color: colors.primary }]}>
+                        ${lawyer.price}/hr
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.lawyerSpecialization, { color: colors.subText }]}>
+                    {lawyer.specialization}
+                  </Text>
+                  <View style={styles.detailsRow}>
+                    <View style={styles.availabilityContainer}>
+                      <View style={styles.availabilityBadge}>
+                        <Clock size={12} color={colors.subText} />
+                        <Text style={[styles.availabilityText, { color: colors.subText }]}>
+                          {t('home.lawyer.nextAvailable')}: {lawyer.availability.nextSlot}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={styles.languagesRow}>
+                    {lawyer.languages.map((lang) => (
+                      <View 
+                        key={lang}
+                        style={[styles.languageBadge, { backgroundColor: colors.primary + '15' }]}
+                      >
+                        <Text style={[styles.languageText, { color: colors.primary }]}>
+                          {lang}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                  <Pressable 
+                    style={[styles.bookButton, { backgroundColor: colors.primary }]}
+                    onPress={() => router.push(`/lawyers/${lawyer.slug}`)}
+                  >
+                    <Text style={styles.bookButtonText}>
+                      {t('home.lawyers.bookConsultation')}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
 
   return (
     <ScrollView 
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
     >
-      <View style={styles.heroSection}>
-        <Text style={[styles.heroTitle, { color: colors.text }]}>
-          {t('home.welcome')}
-        </Text>
-        <Text style={[styles.heroSubtitle, { color: colors.subText }]}>
-          {t('home.heroSubtitle')}
-        </Text>
-      </View>
-
-      <View style={styles.sectionWrapper}>
-        <View style={styles.sectionHeaderContainer}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            {t('home.categories')}
-          </Text>
-          <Pressable onPress={() => router.push('/categories')}>
-            <View style={styles.viewAllContainer}>
-              <Text style={[styles.viewAll, { color: colors.primary }]}>
-                {t('home.viewAll')}
-              </Text>
-              <ChevronRight size={16} color={colors.primary} />
-            </View>
-          </Pressable>
-        </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesContainer}>
-          <CategoryCard icon={Scale} title={t('home.businessLaw')} onPress={() => {}} />
-          <CategoryCard icon={Gavel} title={t('home.criminalLaw')} onPress={() => {}} />
-          <CategoryCard icon={Users} title={t('home.familyLaw')} onPress={() => {}} />
-          <CategoryCard icon={FileText} title={t('home.civilLaw')} onPress={() => {}} />
-          <CategoryCard icon={Building2} title={t('home.realEstate')} onPress={() => {}} />
-        </ScrollView>
-      </View>
-
-      <Pressable 
-        style={[styles.adBanner, { backgroundColor: colors.primary }]}
-        onPress={() => router.push('/premium-consultation')}>
-        <Text style={styles.adText}>{t('home.ads.premiumConsultation')}</Text>
-        <Text style={styles.adCTA}>{t('home.ads.learnMore')}</Text>
-      </Pressable>
-
+      <HomeHeader />
+      <QuickActions />
+      
       <View style={styles.sectionWrapper}>
         <View style={styles.sectionHeaderContainer}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             {t('home.latestNews')}
           </Text>
-          <Pressable onPress={() => router.push('/news')}>
-            <View style={styles.viewAllContainer}>
-              <Text style={[styles.viewAll, { color: colors.primary }]}>
-                {t('home.viewAll')}
-              </Text>
-              <ChevronRight size={16} color={colors.primary} />
-            </View>
-          </Pressable>
         </View>
-        {renderBlogCategories()}
         {NEWS_ITEMS.map(renderNewsCard)}
       </View>
 
@@ -412,7 +363,7 @@ export default function HomeScreen() {
             </Text>
           </Pressable>
           <Pressable 
-            style={[styles.consultingButton, { backgroundColor: colors.secondary }]}
+            style={[styles.consultingButton, { backgroundColor: colors.primary }]}
             onPress={() => router.push('/lawyers')}
           >
             <Users size={20} color="white" />
@@ -426,7 +377,11 @@ export default function HomeScreen() {
       {renderFeaturedLawyers()}
     </ScrollView>
   );
-}
+};
+
+export default HomeScreen;
+
+// Rest of the styles remain the same
 
 const styles = StyleSheet.create({
   container: {
@@ -471,8 +426,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Cairo-Regular',
   },
   categoriesContainer: {
-    gap: 12,
     paddingHorizontal: 4,
+    paddingBottom: 8,
+    gap: 12,
+  },
+  categoryCardContainer: {
+    width: 200,
+    marginRight: 12,
   },
   adBanner: {
     padding: 16,
@@ -606,11 +566,7 @@ const styles = StyleSheet.create({
   lawyerCard: {
     borderRadius: 16,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
   },
   lawyerImageContainer: {
     position: 'relative',
@@ -731,8 +687,106 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   blogCategoryText: {
-    color: 'white',
     fontSize: 14,
+    fontFamily: 'Cairo-Regular',
+  },
+  headerContainer: {
+    paddingTop: 16,
+    paddingBottom: 24,
+    gap: 16,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  quickActionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+  },
+  quickActionButton: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  quickActionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quickActionLabel: {
+    fontSize: 12,
+    fontFamily: 'Cairo-Medium',
+    textAlign: 'center',
+  },
+  cardGradient: {
+    padding: 16,
+    borderRadius: 12,
+    height: '100%',
+    justifyContent: 'space-between',
+  },
+  arrowContainer: {
+    alignSelf: 'flex-end',
+    marginTop: 8,
+  },
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    padding: 16,
+  },
+  categoryCard: {
+    flex: 1,
+    minWidth: 280,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#eaeaea',
+    gap: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  iconWrapper: {
+    padding: 12,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    fontFamily: 'Cairo-Bold',
+  },
+  categoryDescription: {
+    fontSize: 14,
+    lineHeight: 20,
     fontFamily: 'Cairo-Regular',
   },
 });

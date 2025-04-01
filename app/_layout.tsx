@@ -24,6 +24,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { useTheme } from '@/context/ThemeContext';
 import { ThemeWrapper } from '@/components/ThemeWrapper';
 import { AppLayout } from '@/components/layouts/AppLayout';
+import { TranslationProvider } from '../providers/TranslationProvider';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -77,20 +78,22 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <ThemeWrapper>
-          <AppLayout>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
-              <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
-            </Stack>
-            <StatusBar style="auto" />
-          </AppLayout>
-        </ThemeWrapper>
-      </LanguageProvider>
-    </ThemeProvider>
+    <TranslationProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <ThemeWrapper>
+            <AppLayout>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
+              </Stack>
+              <StatusBar style="auto" />
+            </AppLayout>
+          </ThemeWrapper>
+        </LanguageProvider>
+      </ThemeProvider>
+    </TranslationProvider>
   );
 }
 

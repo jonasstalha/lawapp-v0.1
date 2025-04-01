@@ -5,7 +5,40 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useTheme } from '@/context/ThemeContext';
 import { getCardStyle } from '@/utils/styleUtils';
 import { Calendar, Clock, Share2, ArrowLeft, Bookmark, MessageCircle } from 'lucide-react-native';
-import { BLOG_POSTS, type BlogPost } from '@/data/blogPosts';
+
+// Import NEWS_ITEMS from the home page
+const NEWS_ITEMS = [
+  {
+    id: 1,
+    slug: 'new-corporate-law-2024',
+    image: 'https://picsum.photos/800/600',
+    categoryKey: 'home.newsCategories.corporateLaw',
+    date: '2024-03-15',
+    titleKey: 'home.news.corporateLawChanges.title',
+    descriptionKey: 'home.news.corporateLawChanges.description',
+    contentKey: 'home.news.corporateLawChanges.content',
+    author: {
+      name: 'John Doe',
+      title: 'home.news.corporateLawChanges.authorTitle',
+      image: 'https://i.pravatar.cc/150?img=1'
+    }
+  },
+  {
+    id: 2,
+    slug: 'environmental-regulations-update',
+    image: 'https://picsum.photos/800/600?random=2',
+    categoryKey: 'home.newsCategories.environmentalLaw',
+    date: '2024-03-14',
+    titleKey: 'home.news.environmentalRegulations.title',
+    descriptionKey: 'home.news.environmentalRegulations.description',
+    contentKey: 'home.news.environmentalRegulations.content',
+    author: {
+      name: 'Jane Smith',
+      title: 'home.news.environmentalRegulations.authorTitle',
+      image: 'https://i.pravatar.cc/150?img=2'
+    }
+  }
+];
 
 // Custom component to render formatted content
 const ContentRenderer = ({ content, style }) => {
@@ -73,7 +106,7 @@ const BlogPostScreen = () => {
   const { slug } = useLocalSearchParams();
   const router = useRouter();
   
-  const post = BLOG_POSTS.find(item => item.slug === slug);
+  const post = NEWS_ITEMS.find(item => item.slug === slug);
   
   if (!post) {
     return (
